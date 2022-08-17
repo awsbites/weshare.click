@@ -1,0 +1,31 @@
+{
+  "name": "weshare.click",
+  "version": "1.0.0",
+  "description": "A file-sharing application, but from scratch on AWS by [Luciano](https://twitter.com/loige) and [Eoin](https://twitter.com/eoins) live on [AWS Bites](https://awsbites.com)",
+  "main": "index.js",
+  "workspaces": [
+    "backend"
+  ],
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/awsbites/weshare.click.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/awsbites/weshare.click/issues"
+  },
+  "homepage": "https://github.com/awsbites/weshare.click#readme",
+  "devDependencies": {
+    "eslint": "^8.22.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.2.4",
+    "eslint-plugin-promise": "^6.0.0"
+  }
+}

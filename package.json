@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "A file-sharing application, but from scratch on AWS by [Luciano](https://twitter.com/loige) and [Eoin](https://twitter.com/eoins) live on [AWS Bites](https://awsbites.com)",
   "main": "index.js",
-  "workspaces": [
-    "backend"
-  ],
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

@@ -1,14 +1,35 @@
 service: weshare-backend
 frameworkVersion: "3"
 
+plugins:
+  - serverless-iam-roles-per-function
+
 provider:
   name: aws
   runtime: nodejs16.x
   region: eu-west-1
+  environment:
+    BUCKET_NAME: !Ref FileBucket
 
-# functions:
-#   hello:
-#     handler: handler.hello
+functions:
+  createShare:
+    handler: share-handler.handleEvent
+    events:
+      - httpApi:
+          method: POST
+          path: '/'
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - s3:GetObject
+          - s3:PutObject
+        Resource:
+          - !Sub "arn:aws:s3:::${FileBucket}/shares/*"
+      - Effect: Allow
+        Action:
+          - s3:ListBucket
+        Resource:
+          - !Sub "arn:aws:s3:::${FileBucket}"
 
 resources:
   Resources:

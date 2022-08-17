@@ -2,7 +2,7 @@
 
 A file-sharing application, but from scratch on AWS by [Luciano](https://twitter.com/loige) and [Eoin](https://twitter.com/eoins) live on [AWS Bites](https://awsbites.com)
 
-![Live Coding Thubmbnail](./thumbnail.png)
+![Live Coding Thumbnail](./thumbnail.png)
 
 ## What are we building?
 A file sharing application. Imagine that you have a file you want to share with others, or even with yourself on another device. You don't want to use Google Drive, Dropbox, or any of the public cloud services, perhaps because they are blocked in some way.

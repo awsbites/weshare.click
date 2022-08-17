@@ -19,3 +19,7 @@ We will start with a working MVP and go from there. The scope and order of itera
 5. **Authorisation**
 6. **Expiration, quotas, limits, pricing**
 7. 💡 **Your ideas!** [Let us know!](https://github.com/awsbites/weshare.click/issues)
+
+## MVP Architecture
+
+![MVP AWS Archicture diagram](./mvp-diag.png)

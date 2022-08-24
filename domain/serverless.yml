@@ -1,0 +1,44 @@
+service: domain
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  stage: dev
+  region: eu-west-1
+
+plugins:
+  - serverless-iam-roles-per-function
+
+custom:
+  domainName: weshare.click
+
+resources:
+  Resources:
+    PublicHostedZone:
+      Type: AWS::Route53::HostedZone
+      Properties:
+        Name: ${self:custom.domainName}
+
+    DomainCert:
+      Type: AWS::CertificateManager::Certificate
+      Properties:
+        DomainName: ${self:custom.domainName}
+        ValidationMethod: DNS
+        DomainValidationOptions:
+          - DomainName: ${self:custom.domainName}
+            HostedZoneId: !Ref PublicHostedZone
+
+  Outputs:
+    DomainCertArn:
+      Description: ARN of the domain root certificate
+      Value: !Ref DomainCert
+      Export:
+        Name: domain-cert-${sls:stage}
+
+    PublicHostedZone:
+      Description: HostedZone for the domain
+      Value: !Ref PublicHostedZone
+      Export:
+        Name: public-hosted-zone-${sls:stage}
+

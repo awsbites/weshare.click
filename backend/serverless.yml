@@ -8,9 +8,14 @@ provider:
   name: aws
   runtime: nodejs16.x
   region: eu-west-1
+  tracing:
+    apiGateway: true
+    lambda: true
   environment:
     BUCKET_NAME: !Ref FileBucket
     BASE_URL: https://${self:custom.domainName}
+    POWERTOOLS_SERVICE_NAME: weshare
+    POWERTOOLS_METRICS_NAMESPACE: weshare
 
 custom:
   domainName: weshare.click

@@ -64,7 +64,9 @@ async function handler (event, context) {
   if (event.preferredMediaType === 'application/json') {
     body = JSON.stringify({
       filename,
-      headers: [contentDispositionHeader],
+      headers: {
+        'content-disposition': contentDisposition
+      },
       uploadUrl,
       downloadUrl
     })

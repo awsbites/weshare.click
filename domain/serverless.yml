@@ -29,16 +29,25 @@ resources:
           - DomainName: ${self:custom.domainName}
             HostedZoneId: !Ref PublicHostedZone
 
-  Outputs:
-    DomainCertArn:
-      Description: ARN of the domain root certificate
-      Value: !Ref DomainCert
-      Export:
-        Name: domain-cert-${sls:stage}
+    ApiCustomDomain:
+      Type: AWS::ApiGatewayV2::DomainName
+      Properties:
+        DomainName: ${self:custom.domainName}
+        DomainNameConfigurations:
+          - CertificateArn: !Ref DomainCert
 
-    PublicHostedZone:
-      Description: HostedZone for the domain
-      Value: !Ref PublicHostedZone
-      Export:
-        Name: public-hosted-zone-${sls:stage}
-
+    DomainRecordSet:
+      Type: AWS::Route53::RecordSetGroup
+      Properties:
+        HostedZoneId: !Ref PublicHostedZone
+        RecordSets:
+          - Name: ${self:custom.domainName}
+            Type: A
+            AliasTarget:
+              DNSName: !GetAtt ApiCustomDomain.RegionalDomainName
+              HostedZoneId: !GetAtt ApiCustomDomain.RegionalHostedZoneId
+          - Name: ${self:custom.domainName}
+            Type: AAAA
+            AliasTarget:
+              DNSName: !GetAtt ApiCustomDomain.RegionalDomainName
+              HostedZoneId: !GetAtt ApiCustomDomain.RegionalHostedZoneId

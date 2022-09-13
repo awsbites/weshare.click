@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { Metrics, logMetrics, MetricUnits } from '@aws-lambda-powertools/metrics'
 import { Tracer, captureLambdaHandler } from '@aws-lambda-powertools/tracer'
 import { Logger, injectLambdaContext } from '@aws-lambda-powertools/logger'
@@ -6,7 +7,7 @@ import httpContentNegotiation from '@middy/http-content-negotiation'
 import httpHeaderNormalizer from '@middy/http-header-normalizer'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import { randomUUID } from 'node:crypto'
+import sanitizeFilename from 'sanitize-filename'
 
 const { BUCKET_NAME, BASE_URL } = process.env
 const EXPIRY_DEFAULT = 24 * 60 * 60
@@ -23,7 +24,8 @@ async function handler (event, context) {
   const key = `shares/${id[0]}/${id[1]}/${id}`
 
   const filename = event?.queryStringParameters?.filename
-  const contentDisposition = `attachment; filename="${filename}"`
+  const sanitizedFilename = filename && sanitizeFilename(filename)
+  const contentDisposition = sanitizedFilename && `attachment; filename="${sanitizedFilename}"`
   const contentDispositionHeader = contentDisposition && `content-disposition: ${contentDisposition}`
 
   logger.info('Creating share', { id, key, filename, contentDispositionHeader })

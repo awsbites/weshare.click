@@ -4,6 +4,10 @@ frameworkVersion: "3"
 plugins:
   - serverless-iam-roles-per-function
 
+package:
+  patterns:
+    - "!test/**"
+
 provider:
   name: aws
   runtime: nodejs16.x

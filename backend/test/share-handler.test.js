@@ -62,7 +62,9 @@ tap.test('content disposition is properly sanitised', async t => {
     ['//////', false],
     ['../', false],
     ['?.//-/tes//t.txt', '.-test.txt'],
-    ['?.\\-\\tes\\t.txt', '.-test.txt']
+    ['?.\\-\\tes\\t.txt', '.-test.txt'],
+    ['写真.jpg', '写真.jpg'],
+    ['📸.jpg', '📸.jpg']
   ]
 
   for (const [filename, expected] of cases) {
@@ -77,4 +79,25 @@ tap.test('content disposition is properly sanitised', async t => {
       t.ok(response.body.includes(` -H 'content-disposition: attachment; filename="${expected}"'`), `Filename ${filename} should generate sanitised filename: ${expected}.\n\nReceived response body: ${response.body}`)
     }
   }
+})
+
+tap.test('produces a JSON output if passed accept: application/json', async t => {
+  const { handleEvent } = await esmock('../share-handler.js', globalMocks)
+
+  const eventWithFilename = {
+    queryStringParameters: { filename: 'test.txt' },
+    headers: { accept: 'application/json' }
+  }
+
+  const expectedBody = {
+    filename: 'test.txt',
+    headers: { 'content-disposition': 'attachment; filename="test.txt"' },
+    uploadUrl: 'https://presignedurl.com',
+    downloadUrl: 'https://weshare.click/share/00000000-0000-0000-0000-000000000000'
+  }
+
+  const response = await handleEvent(eventWithFilename)
+  const body = JSON.parse(response.body)
+
+  t.same(body, expectedBody)
 })

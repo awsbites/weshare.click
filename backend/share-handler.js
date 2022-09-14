@@ -23,6 +23,17 @@ async function handler (event, context) {
   const id = randomUUID()
   const key = `shares/${id[0]}/${id[1]}/${id}`
 
+  /*
+    If the user is providing a filename, we will try to preserve that
+    filename when the file is downloaded.
+    But, since this is user input, we need to sanitize it to mitigate potential attacks.
+    For more info check out section 5 (Security consideration)
+    of the Content-Disposition RFC: https://www.ietf.org/rfc/rfc2183.txt
+
+    Note that when sanitizing the filename, we might end up with an empty string.
+    We threat this case as if the user never passed a filename in the first place and we
+    don't generate a Content-Disposition header in that case.
+  */
   const filename = event?.queryStringParameters?.filename
   const sanitizedFilename = filename && sanitizeFilename(filename)
   const contentDisposition = sanitizedFilename && `attachment; filename="${sanitizedFilename}"`

@@ -4,6 +4,10 @@ frameworkVersion: "3"
 plugins:
   - serverless-iam-roles-per-function
 
+package:
+  patterns:
+    - "!test/**"
+
 provider:
   name: aws
   runtime: nodejs16.x
@@ -54,35 +58,12 @@ functions:
 
 resources:
   Resources:
-    CustomDomain:
-      Type: AWS::ApiGatewayV2::DomainName
-      Properties:
-        DomainName: ${self:custom.domainName}
-        DomainNameConfigurations:
-          - CertificateArn: ${cf:domain-${sls:stage}.DomainCertArn}
-
-    DomainRecordSet:
-      Type: AWS::Route53::RecordSetGroup
-      Properties:
-        HostedZoneId: ${cf:domain-${sls:stage}.PublicHostedZone}
-        RecordSets:
-          - Name: ${self:custom.domainName}
-            Type: A
-            AliasTarget:
-              DNSName: !GetAtt CustomDomain.RegionalDomainName
-              HostedZoneId: !GetAtt CustomDomain.RegionalHostedZoneId
-          - Name: ${self:custom.domainName}
-            Type: AAAA
-            AliasTarget:
-              DNSName: !GetAtt CustomDomain.RegionalDomainName
-              HostedZoneId: !GetAtt CustomDomain.RegionalHostedZoneId
-
     CustomDomainPathMapping:
       Type: AWS::ApiGatewayV2::ApiMapping
       Properties:
         ApiId: !Ref HttpApi
         ApiMappingKey: "share"
-        DomainName: !Ref CustomDomain
+        DomainName: ${self:custom.domainName}
         Stage: !Ref HttpApiStage
 
     FileBucket:

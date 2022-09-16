@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 import { basename } from 'node:path'
-import { createReadStream } from 'fs'
-import { stat } from 'fs/promises'
+import { createReadStream } from 'node:fs'
+import { stat } from 'node:fs/promises'
 import { request } from 'undici'
 import { program } from 'commander'
 

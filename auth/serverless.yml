@@ -1,0 +1,103 @@
+service: weshare-auth
+frameworkVersion: "3"
+
+plugins:
+  - serverless-iam-roles-per-function
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: eu-west-1
+  tracing:
+    apiGateway: true
+    lambda: true
+  environment:
+    LOG_LEVEL: debug
+    POWERTOOLS_SERVICE_NAME: auth
+    POWERTOOLS_METRICS_NAMESPACE: auth
+    CLIENT_ID: !Ref UserPoolClient
+    BASE_URL: https://${self:custom.domainName}
+    USER_POOL_DOMAIN: ${self:custom.userPoolDomain}
+
+custom:
+  domainName: weshare.click
+  userPoolDomain: ${self:service}-${sls:stage}
+
+functions:
+  createDeviceAuthorizationRequest:
+    handler: device-auth-handler.handleEvent
+    events:
+      - httpApi:
+          method: POST
+          path: "/device_authorization"
+
+resources:
+  Resources:
+    UserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        UserPoolName: user-pool-${sls:stage}
+        UsernameAttributes: [email]
+        AutoVerifiedAttributes: [email]
+        Policies:
+          PasswordPolicy:
+            MinimumLength: 12
+            RequireLowercase: false
+            RequireUppercase: false
+            RequireNumbers: false
+            RequireSymbols: false
+        Schema:
+          - AttributeDataType: String
+            Mutable: true
+            Name: tenant
+            StringAttributeConstraints:
+              MinLength: 2
+              MaxLength: 16
+          - AttributeDataType: String
+            Mutable: true
+            Name: tier
+            StringAttributeConstraints:
+              MinLength: 2
+              MaxLength: 16
+
+    UserPoolClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        ClientName: user-pool-client-${sls:stage}
+        ExplicitAuthFlows:
+          - ALLOW_USER_SRP_AUTH
+          - ALLOW_REFRESH_TOKEN_AUTH
+        RefreshTokenValidity: 30
+        SupportedIdentityProviders:
+          - COGNITO
+        WriteAttributes:
+          - email
+        CallbackURLs:
+          - https://${self:custom.domainName}/auth/callback
+        DefaultRedirectURI: https://${self:custom.domainName}/auth/callback
+        AllowedOAuthFlowsUserPoolClient: true
+        AllowedOAuthFlows:
+          - code
+        AllowedOAuthScopes:
+          - openid
+        UserPoolId: !Ref UserPool
+
+    UserPoolDomain:  
+      Type: AWS::Cognito::UserPoolDomain
+      Properties:
+        Domain: ${self:custom.userPoolDomain}
+        UserPoolId: !Ref UserPool
+
+    UserPoolId:
+      Type: AWS::SSM::Parameter
+      Properties:
+        Name: /weshare/${sls:stage}/userPoolId
+        Type: String
+        Value: !Ref UserPool
+
+    UserPoolClientId:
+      Type: AWS::SSM::Parameter
+      Properties:
+        Name: /weshare/${sls:stage}/userPoolClientId
+        Type: String
+        Value: !Ref UserPoolClient

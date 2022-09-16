@@ -1,0 +1,29 @@
+{
+  "name": "auth",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@middy/http-response-serializer": "^3.3.1",
+    "serverless-iam-roles-per-function": "^3.2.0"
+  },
+  "dependencies": {
+    "@aws-lambda-powertools/logger": "^1.2.1",
+    "@aws-lambda-powertools/metrics": "^1.2.1",
+    "@aws-lambda-powertools/tracer": "^1.2.1",
+    "@aws-sdk/client-dynamodb": "^3.168.0",
+    "@aws-sdk/lib-dynamodb": "^3.168.0",
+    "@middy/core": "^3.3.0",
+    "@middy/http-header-normalizer": "^3.3.1",
+    "@middy/http-urlencode-body-parser": "^3.3.1",
+    "crypto-random-string": "^5.0.0",
+    "undici": "^5.10.0"
+  }
+}

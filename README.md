@@ -23,3 +23,9 @@ We will start with a working MVP and go from there. The scope and order of itera
 ## MVP Architecture
 
 ![MVP AWS Archicture diagram](./mvp-diag.png)
+
+## Authorization Flow
+
+The authorization flow uses the OAuth 2.0 Device Authorization Flow:
+
+![weshare auth service flow](./auth-flow.png)

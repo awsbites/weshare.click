@@ -13,6 +13,7 @@ provider:
     lambda: true
   environment:
     LOG_LEVEL: debug
+    TABLE_NAME: !Ref Table
     POWERTOOLS_SERVICE_NAME: auth
     POWERTOOLS_METRICS_NAMESPACE: auth
     CLIENT_ID: !Ref UserPoolClient
@@ -30,9 +31,23 @@ functions:
       - httpApi:
           method: POST
           path: "/device_authorization"
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource:
+          - !GetAtt Table.Arn
 
 resources:
   Resources:
+    CustomDomainPathMapping:
+      Type: AWS::ApiGatewayV2::ApiMapping
+      Properties:
+        ApiId: !Ref HttpApi
+        ApiMappingKey: "auth"
+        DomainName: ${self:custom.domainName}
+        Stage: !Ref HttpApiStage
+
     UserPool:
       Type: AWS::Cognito::UserPool
       Properties:
@@ -101,3 +116,58 @@ resources:
         Name: /weshare/${sls:stage}/userPoolClientId
         Type: String
         Value: !Ref UserPoolClient
+
+    Table:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: pk
+            AttributeType: S 
+          - AttributeName: sk
+            AttributeType: S 
+          - AttributeName: gsi1pk
+            AttributeType: S 
+          - AttributeName: gsi1sk
+            AttributeType: S 
+          - AttributeName: gsi2pk
+            AttributeType: S 
+          - AttributeName: gsi2sk
+            AttributeType: S
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: true
+        SSESpecification:
+          SSEEnabled: true
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        KeySchema:
+          - AttributeName: pk
+            KeyType: HASH
+          - AttributeName: sk
+            KeyType: RANGE
+        TimeToLiveSpecification:
+          AttributeName: expiration
+          Enabled: true
+        GlobalSecondaryIndexes:
+          - IndexName: gsi1
+            KeySchema:
+              - AttributeName: gsi1pk
+                KeyType: HASH
+              - AttributeName: gsi1sk
+                KeyType: RANGE
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
+            Projection:
+              ProjectionType: ALL
+          - IndexName: gsi2
+            KeySchema:
+              - AttributeName: gsi2pk
+                KeyType: HASH
+              - AttributeName: gsi2sk
+                KeyType: RANGE
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
+            Projection:
+              ProjectionType: ALL

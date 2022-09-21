@@ -38,6 +38,24 @@ functions:
         Resource:
           - !GetAtt Table.Arn
 
+  verifyDeviceAuthorizationRequest:
+    handler: code-verification-handler.handleEvent
+    events:
+      - httpApi:
+          method: GET
+          path: "/verify"
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource:
+          - !GetAtt Table.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - !Sub "${Table.Arn}/*"
+
 resources:
   Resources:
     CustomDomainPathMapping:

@@ -154,6 +154,13 @@ resources:
         Domain: ${self:custom.userPoolDomain}
         UserPoolId: !Ref UserPool
 
+    UserPoolUICustomization:
+      Type: AWS::Cognito::UserPoolUICustomizationAttachment
+      Properties:
+        ClientId: !Ref UserPoolClient
+        CSS: ${file(./user-pool-css.cjs)}
+        UserPoolId: !Ref UserPool
+
     UserPoolId:
       Type: AWS::SSM::Parameter
       Properties:

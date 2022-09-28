@@ -24,6 +24,11 @@ const docClient = DynamoDBDocument.from(ddbClient)
  */
 async function handler (event, context) {
   const { code, state, error, error_description: errorDescription } = event.queryStringParameters
+  if (!state || !code) {
+    // The user may have arrived here by logging in directly on the Cognito Hosted UI without initiating
+    // a proper Device Auth flow
+    return htmlResponse(400, 'To log in to weshare.click, use the <b>weshare CLI</b>')
+  }
 
   metrics.addMetric('IdpCallbackCount', MetricUnits.Count, 1)
   const stateKey = `state#${state}`
@@ -43,10 +48,7 @@ async function handler (event, context) {
   const ddbQueryResponse = await docClient.query(queryItemInput)
   logger.debug({ ddbResponse: ddbQueryResponse }, 'Received query response')
   if (ddbQueryResponse.Items?.length !== 1) {
-    return {
-      statusCode: 400,
-      body: 'Unable to verify user code'
-    }
+    return htmlResponse(400, 'Unable to verify user code')
   }
 
   const { pk, sk } = ddbQueryResponse.Items[0]

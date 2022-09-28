@@ -12,7 +12,7 @@ import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb'
 
 import { COGNITO_OAUTH_TOKEN_URI, CLIENT_ID, TABLE_NAME, REDIRECT_URI } from './config.js'
 import { DeviceAuthStatus, OAuthErrorCodes } from './constants.js'
-import { jsonResponse } from './utils.js'
+import { jsonResponse } from './util.js'
 
 const tracer = new Tracer()
 const logger = new Logger()

@@ -6,7 +6,7 @@ import middy from '@middy/core'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb'
 import { CODE_EXPIRY_SECONDS, TABLE_NAME } from './config.js'
-import { htmlResponse } from './utils.js'
+import { htmlResponse } from './util.js'
 import { DeviceAuthStatus } from './constants.js'
 
 const tracer = new Tracer()

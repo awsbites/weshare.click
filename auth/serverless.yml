@@ -56,6 +56,37 @@ functions:
         Resource:
           - !Sub "${Table.Arn}/*"
 
+  processIdpCallback:
+    handler: idp-callback-handler.handleEvent
+    events:
+      - httpApi:
+          method: GET
+          path: "/callback"
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource:
+          - !GetAtt Table.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - !Sub "${Table.Arn}/*"
+
+  retrieveToken:
+    handler: token-handler.handleEvent
+    events:
+      - httpApi:
+          method: POST
+          path: "/token"
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - !GetAtt Table.Arn
+
 resources:
   Resources:
     CustomDomainPathMapping:
@@ -72,6 +103,8 @@ resources:
         UserPoolName: user-pool-${sls:stage}
         UsernameAttributes: [email]
         AutoVerifiedAttributes: [email]
+        AdminCreateUserConfig:
+          AllowAdminCreateUserOnly: true
         Policies:
           PasswordPolicy:
             MinimumLength: 12
@@ -84,14 +117,14 @@ resources:
             Mutable: true
             Name: tenant
             StringAttributeConstraints:
-              MinLength: 2
-              MaxLength: 16
+              MinLength: '2'
+              MaxLength: '16'
           - AttributeDataType: String
             Mutable: true
             Name: tier
             StringAttributeConstraints:
-              MinLength: 2
-              MaxLength: 16
+              MinLength: '2'
+              MaxLength: '16'
 
     UserPoolClient:
       Type: AWS::Cognito::UserPoolClient
@@ -119,6 +152,13 @@ resources:
       Type: AWS::Cognito::UserPoolDomain
       Properties:
         Domain: ${self:custom.userPoolDomain}
+        UserPoolId: !Ref UserPool
+
+    UserPoolUICustomization:
+      Type: AWS::Cognito::UserPoolUICustomizationAttachment
+      Properties:
+        ClientId: !Ref UserPoolClient
+        CSS: ${file(./user-pool-css.cjs)}
         UserPoolId: !Ref UserPool
 
     UserPoolId:

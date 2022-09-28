@@ -40,7 +40,7 @@ async function handler (event, context) {
   const contentDispositionHeader = contentDisposition && `content-disposition: ${contentDisposition}`
 
   logger.info('Creating share', { id, key, filename, contentDispositionHeader })
-  metrics.addMetric('createShare', MetricUnits.Count, 1)
+  metrics.addMetric('CreateShareCount', MetricUnits.Count, 1)
 
   // Create the download URL
   const downloadUrl = `${BASE_URL}/share/${id}`
@@ -96,7 +96,7 @@ async function handler (event, context) {
 }
 
 export const handleEvent = middy(handler)
-  .use(injectLambdaContext(logger, { logEvents: true }))
+  .use(injectLambdaContext(logger, { logEvent: true }))
   .use(logMetrics(metrics))
   .use(captureLambdaHandler(tracer))
   .use(httpHeaderNormalizer())

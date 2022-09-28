@@ -20,6 +20,14 @@ provider:
     BASE_URL: https://${self:custom.domainName}
     POWERTOOLS_SERVICE_NAME: weshare
     POWERTOOLS_METRICS_NAMESPACE: weshare
+  httpApi:
+    authorizers:
+      jwtAuthorizer:
+        type: jwt
+        identitySource: $request.header.Authorization
+        issuerUrl: !Sub 'https://cognito-idp.${AWS::Region}.amazonaws.com/${UserPoolIdParameter}'
+        audience:
+          - !Ref UserPoolClientIdParameter
 
 custom:
   domainName: weshare.click
@@ -31,6 +39,8 @@ functions:
       - httpApi:
           method: POST
           path: "/"
+          authorizer:
+            name: jwtAuthorizer
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -57,6 +67,14 @@ functions:
           - !Sub "arn:aws:s3:::${FileBucket}/shares/*"
 
 resources:
+  Parameters:
+    UserPoolIdParameter:
+      Type: AWS::SSM::Parameter::Value<String>
+      Default: /weshare/${sls:stage}/userPoolId
+    UserPoolClientIdParameter:
+      Type: AWS::SSM::Parameter::Value<String>
+      Default: /weshare/${sls:stage}/userPoolClientId
+
   Resources:
     CustomDomainPathMapping:
       Type: AWS::ApiGatewayV2::ApiMapping

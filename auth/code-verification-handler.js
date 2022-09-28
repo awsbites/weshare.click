@@ -17,6 +17,16 @@ const metrics = new Metrics()
 const ddbClient = new DynamoDBClient()
 const docClient = DynamoDBDocument.from(ddbClient)
 
+/**
+ * RFC8628 Device Authorization _Code Verification_
+ * This handles the GET request to the verification URL.
+ * The `user_code` query parameter is looked up and, if successful, the user agent is redirected
+ * to the IDP authorisation URL for the OAuth 2.0 authorization code flow.
+ *
+ * https://www.rfc-editor.org/rfc/rfc8628#section-3.3
+ *
+ * @param {*} event Lambda HTTP API Event
+ */
 async function handler (event, context) {
   const { user_code: userCode } = event.queryStringParameters
   const userCodeKey = `user_code#${userCode}`
@@ -25,6 +35,7 @@ async function handler (event, context) {
 
   metrics.addMetric('VerificationAttemptCount', MetricUnits.Count, 1)
 
+  // We would normally present a Proceed/Cancel view to the user before redirecting
   const queryInput = {
     TableName: TABLE_NAME,
     IndexName: 'gsi1',
@@ -63,7 +74,9 @@ async function handler (event, context) {
   }
 
   try {
-    await docClient.update(updateItemInput)
+    logger.debug({ updateItemInput })
+    const updateItemResponse = await docClient.update(updateItemInput)
+    logger.debug({ updateItemResponse })
   } catch (err) {
     if (err.name === 'ConditionalCheckFailedException') {
       return htmlResponse(400, 'The token is expired or already verified')
@@ -79,12 +92,14 @@ async function handler (event, context) {
   destinationUrl.searchParams.append('state', state)
   destinationUrl.searchParams.append('scope', 'openid')
 
-  return {
+  const apiResponse = {
     statusCode: 302,
-    header: {
+    headers: {
       location: destinationUrl.toString()
     }
   }
+  logger.debug({ apiResponse })
+  return apiResponse
 }
 
 export const handleEvent = middy(handler)

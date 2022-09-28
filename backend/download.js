@@ -29,7 +29,7 @@ async function handler (event, context) {
   })
 
   logger.info('Downloading share', { id, key })
-  metrics.addMetric('downloadShare', MetricUnits.Count, 1)
+  metrics.addMetric('DownloadShareCount', MetricUnits.Count, 1)
 
   // return an HTTP redirect response to the presigned URL
   return {
@@ -41,6 +41,6 @@ async function handler (event, context) {
 }
 
 export const handleEvent = middy(handler)
-  .use(injectLambdaContext(logger, { logEvents: true }))
+  .use(injectLambdaContext(logger, { logEvent: true }))
   .use(logMetrics(metrics))
   .use(captureLambdaHandler(tracer))

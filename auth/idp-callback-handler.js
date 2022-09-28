@@ -88,9 +88,17 @@ async function handler (event, context) {
     ConditionExpression: '#status = :prevStatus and #exp <= :expiryTime'
   }
 
-  logger.info({ updateInput }, 'Updating with code or error')
-  const ddbResponse = await docClient.update(updateInput)
-  logger.debug({ ddbResponse }, 'Received update response')
+  try {
+    logger.info({ updateInput }, 'Updating with code or error')
+    const ddbResponse = await docClient.update(updateInput)
+    logger.debug({ ddbResponse }, 'Received update response')
+  } catch (err) {
+    if (err.name === 'ConditionalCheckFailedException') {
+      return htmlResponse(400, 'The token is expired or already verified')
+    }
+    logger.error({ err })
+    return htmlResponse(500, `Oops. Something went wrong with request ID: ${context.awsRequestId}`)
+  }
 
   if (error) {
     return htmlResponse(400, `Error(${error}): ${errorDescription}`)

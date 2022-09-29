@@ -28,7 +28,6 @@ async function handler (event) {
   // Create a user code (readable, typeable, lower entropy)
   const userCode = cryptoRandomString({ length: 8, type: 'distinguishable' })
 
-  // TODO: Create an entry in the table
   // Store: device_code, user_code, expiration, state
   const expiration = (Date.now() / 1000) + CODE_EXPIRY_SECONDS
 

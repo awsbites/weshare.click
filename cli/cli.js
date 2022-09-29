@@ -24,7 +24,7 @@ program
   .action(logout)
 
 program
-  .command('upload', {isDefault: true})
+  .command('upload', { isDefault: true })
   .argument('<filepath>', 'Path to the file to upload')
   .action(upload)
 

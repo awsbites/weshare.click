@@ -9,8 +9,9 @@ import { request } from 'undici'
 
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb'
+import { CognitoIdentityProviderClient, DescribeUserPoolClientCommand } from '@aws-sdk/client-cognito-identity-provider'
 
-import { COGNITO_OAUTH_TOKEN_URI, CLIENT_ID, TABLE_NAME, REDIRECT_URI } from './config.js'
+import { COGNITO_OAUTH_TOKEN_URI, USER_POOL_ID, CLIENT_ID, TABLE_NAME, REDIRECT_URI } from './config.js'
 import { DeviceAuthStatus, OAuthErrorCodes } from './constants.js'
 import { jsonResponse } from './util.js'
 
@@ -20,6 +21,9 @@ const metrics = new Metrics()
 
 const ddbClient = new DynamoDBClient()
 const docClient = DynamoDBDocument.from(ddbClient)
+const cognitoClient = new CognitoIdentityProviderClient()
+
+let clientSecret = null
 
 /**
  * Handles an RFC8628 Device Access Token Request
@@ -79,7 +83,7 @@ async function handler (event, context) {
  * Initiate an OAuth 2.0 Access Token Request
  *
  * https://www.rfc-editor.org/rfc/rfc6749#page-29
- * 
+ *
  * @param {*} oauthCode The code retrieved already from the authorization server
  * @returns HTTP Lambda proxy response for the request
  */
@@ -87,9 +91,19 @@ async function fetchToken (oauthCode) {
   metrics.addMetric('TokenFetchCount', MetricUnits.Count, 1)
   const url = new URL(COGNITO_OAUTH_TOKEN_URI)
 
+  if (!clientSecret) {
+    // the client secret is not available through cloud formation so we need to
+    // fetch it at runtime using the cognito api
+    const command = new DescribeUserPoolClientCommand({ ClientId: CLIENT_ID, UserPoolId: USER_POOL_ID })
+    const response = await cognitoClient.send(command)
+    clientSecret = response.UserPoolClient.ClientSecret
+    logger.info({ UserPoolClient: response }, 'Fetched user pool client secret')
+  }
+
   const tokenGrantParams = new URLSearchParams()
   tokenGrantParams.append('grant_type', 'authorization_code')
   tokenGrantParams.append('client_id', CLIENT_ID)
+  tokenGrantParams.append('client_secret', clientSecret)
   tokenGrantParams.append('redirect_uri', REDIRECT_URI)
   tokenGrantParams.append('code', oauthCode)
 

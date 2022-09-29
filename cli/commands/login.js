@@ -1,4 +1,4 @@
-import {setTimeout} from 'node:timers/promises'
+import { setTimeout } from 'node:timers/promises'
 import querystring from 'node:querystring'
 import enquirer from 'enquirer'
 import { request } from 'undici'
@@ -6,7 +6,7 @@ import open from 'open'
 import ora from 'ora'
 import { config } from '../config.js'
 
-export default async function login() {
+export default async function login () {
   // prompt for domain
   const { baseurl } = await enquirer.prompt({
     type: 'input',
@@ -41,7 +41,7 @@ export default async function login() {
   } catch {}
 
   const spinner = ora('Waiting to complete the login in the browser...').start()
-  
+
   // poll in the background
   let loggedIn = null
 
@@ -70,7 +70,7 @@ export default async function login() {
       loggedIn = tokenRespBody
       spinner.succeed('Login successful')
     } else if (tokenRespBody.error_code !== 'authorization_pending') {
-      spinner.fail(`Login failed: ${tokenRespBody.error_code}`)
+      spinner.fail(`Login failed: ${JSON.stringify(tokenRespBody)}`)
       process.exit(1)
     }
   }

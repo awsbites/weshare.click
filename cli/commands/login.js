@@ -14,6 +14,7 @@ export default async function login () {
     message: 'Please enter the base url of your weshare.click deployment',
     validate: (input) => {
       try {
+        // eslint-disable-next-line no-new
         new URL(input)
         return true
       } catch {

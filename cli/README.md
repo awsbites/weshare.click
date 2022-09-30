@@ -17,8 +17,10 @@ If you still need to provision your `weshare.click` instance, check out the [`we
 Using npm:
 
 ```bash
-npm i -g weshare
+npm install --global weshare
 ```
+
+(requires Node.js v14 or higher)
 
 ## Usage
 

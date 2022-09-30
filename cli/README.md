@@ -1,7 +1,7 @@
 # weshare.click CLI client
 
 `Weshare.click` is a simple personal file sharing service built by [Eoin Shanaghy](https://twitter.com/eoins)
-and [Luciano Mammino](https://twitter.com/loige) during a [series of live coding streams](https://www.youtube.com/watch?v=EfRElTYilyY&list=PLAWXFhe0N1vI1_z-06EzJ22pz95_gBrId) ad part of the [AWS Bites](https://awsbites.com) show.
+and [Luciano Mammino](https://twitter.com/loige) during a [series of live coding streams](https://www.youtube.com/watch?v=EfRElTYilyY&list=PLAWXFhe0N1vI1_z-06EzJ22pz95_gBrId) as part of the [AWS Bites](https://awsbites.com) show.
 
 Weshare.click is a minimal, yet fully-functional private file sharing system that can be used as an alternative to tools like WeTransfer or Dropbox Transfer.
 
@@ -21,6 +21,7 @@ npm install --global weshare
 ```
 
 (requires Node.js v14 or higher)
+
 
 ## Usage
 

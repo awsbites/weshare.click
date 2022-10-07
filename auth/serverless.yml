@@ -1,4 +1,4 @@
-service: weshare-auth
+service: ${file(../config.cjs):config.serviceName}-auth
 frameworkVersion: "3"
 
 plugins:
@@ -101,7 +101,7 @@ resources:
     UserPool:
       Type: AWS::Cognito::UserPool
       Properties:
-        UserPoolName: user-pool-${sls:stage}
+        UserPoolName: ${file(../config.cjs):config.serviceName}-user-pool-${sls:stage}
         UsernameAttributes: [email]
         AutoVerifiedAttributes: [email]
         AdminCreateUserConfig:

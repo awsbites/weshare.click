@@ -82,6 +82,7 @@ const { defineConfig } = require('./weshare.cjs')
 exports.config = defineConfig({
   // region: 'eu-west-1', // inferred from AWS_REGION or DEFAULT_AWS_REGION (or 'eu-west-1' if not set)
   // stage: 'dev', // the name of the stage to deploy to (e.g. 'dev', 'prod')
+  // serviceName: 'weshare', // the name of the service (for resource naming)
   domain: '' // <-- ADD YOUR DOMAIN NAME HERE (e.g. 'files.weshare.click' or 'weshare.click')
 })
 ```
@@ -119,7 +120,7 @@ If you are using a subdomain (e.g. `files.example.com`) and you are managing the
 ```bash
 export TOP_LEVEL_DOMAIN='example.com'
 export DOMAIN='files.example.com'
-export HOSTED_ZONE_ID=$(aws route53 list-hosted-zones-by-name --dns-name $DOMAIN | jq -r .HostedZones[0].Id)
+export HOSTED_ZONE_ID=$(aws route53 list-hosted-zones-by-name --dns-name $TOP_LEVEL_DOMAIN | jq -r .HostedZones[0].Id)
 export NAMESERVERS=$(aws route53 get-hosted-zone --id $HOSTED_ZONE_ID | jq '.DelegationSet.NameServers | map({Value: .})')
 export COMMAND=$(cat << EOF
 {
@@ -146,18 +147,38 @@ Of course, if this looks like too much code, you can do the same on the AWS web 
 
 </details>
 
+If you know a better way to streamline the first deployment, please create an issue or a PR!
 
-### 4. Create users
 
-TODO ...
+### 4. Create users in the Cognito User pool
+
+To be able to login into weshare, you need to create some users first. You can do this either from the AWS web console or programmatically.
+
+Here's how to add a new user to the user pool from the AWS CLI:
+
+```bash
+# TODO
+# find user pool id
+# run command to add a user to that pool
+```
+
 
 ## Usage
 
-TODO ...
+  1. Install the `weshare` CLI with `npm i -g weshare`
+  2. Login using `weshare login`
+  3. Upload a file with `weshare <filepath>`
+
+For more info use `weshare --help`
+
 
 ## Uninstall
 
-TODO ...
+To remove this app from this account you need to:
+
+  1. Delete all the files from your files bucket and the bucket itself
+  2. Run `./remove.sh` to remove all the stacks
+  3. Clean up DNS-related changes (e.g. delegation from another hosted zone or name server configuration in your domain provider)
 
 
 ## Contributing

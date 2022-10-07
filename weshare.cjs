@@ -10,6 +10,7 @@
  * @property {Region=} region - The AWS region to use for the deployment
  * @property {string=} stage - The AWS region to use for the deployment
  * @property {string} domain - The domain name to use for the deployment (e.g. files.weshare.click)
+ * @property {string=} serviceName - The name of the service (for resource naming), default: 'weshare'
  */
 
 /**
@@ -19,7 +20,8 @@ const defaultRegion = /** @type {Region} */ (process.env.AWS_REGION) || /** @typ
 
 const defaultConfig = {
   region: defaultRegion,
-  stage: 'dev'
+  stage: 'dev',
+  serviceName: 'weshare'
 }
 
 /**

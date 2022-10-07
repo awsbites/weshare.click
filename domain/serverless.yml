@@ -1,4 +1,4 @@
-service: domain
+service: ${file(../config.cjs):config.serviceName}-domain
 frameworkVersion: '3'
 
 provider:

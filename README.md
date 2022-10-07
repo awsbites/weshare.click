@@ -100,12 +100,19 @@ To deploy all the stacks you can run:
 ./deploy.sh
 ```
 
-> **Warning**: The first deployment will need some manual intervention. The deployment will create a new Route 53 hosted zone. You will need to make sure that the DNS are propagated correctly to that new Hosted Zone. This is something that needs to be done **DURING THE FIRST DEPLOYMENT**. In fact, the deployment will also create a certificate in ACM and it will try to validate it based on resolving some DNS on that hosted zone. Until ACM is able to validate the domain, your deployment will be pending. See below how to manually configure the Hosted zones below.
+> **Warning**: The first deployment will need some manual intervention. The deployment will create a new Route 53 hosted zone. You will need to make sure that the DNS are propagated correctly to that new Hosted Zone. This is something that needs to be done **DURING THE FIRST DEPLOYMENT**. In fact, the deployment will also create a certificate in ACM and it will try to validate it based on resolving some DNS on that hosted zone. Until ACM is able to validate the domain, your deployment will be pending. See below how to manually configure the Hosted zone.
 
 <details>
   <summary><h4>Configure NS records for the new hosted zone</h4></summary>
 
-TODO ...
+When the new hosted zone is created it gets a `NS` record that contains 4 different name servers. You will need to update your domain configuration (in your domain provider site) to point to the nameserver to the 4 name servers in this record.
+
+If you need a one liner on how to get the name servers:
+
+```bash
+export DOMAIN='example.com' # <-- replace with your actual domain name
+aws route53 get-hosted-zone --id $(aws route53 list-hosted-zones-by-name --dns-name $DOMAIN | jq -r .HostedZones[0].Id) | jq -r .DelegationSet.NameServers[]
+```
 
 </details>
 

@@ -1,8 +1,8 @@
 # weshare.click
 
-Weshare.click is a simple file-sharing application that you can self-host on AWS and use as an alternative to file-transfer services such as WeTransfer or Dropbox Transfer.
+Weshare.click (or `weshare` for short) is a simple file-sharing application that you can self-host on AWS and use as an alternative to file-transfer services such as WeTransfer or Dropbox Transfer.
 
-This application was built from scratch by [Eoin](https://twitter.com/eoins) and [Luciano](https://twitter.com/loige) on a series of live streams as part of the [AWS Bites](https://awsbites.com) show. The full playlist (6 episodes / ~8 hours) is [available on YouTube](https://www.youtube.com/playlist?list=PLAWXFhe0N1vI1_z-06EzJ22pz95_gBrId).
+The first version of this application was built from scratch by [Eoin](https://twitter.com/eoins) and [Luciano](https://twitter.com/loige) on a series of live streams as part of the [AWS Bites](https://awsbites.com) show. The full playlist (6 episodes / ~8 hours) is [available on YouTube](https://www.youtube.com/playlist?list=PLAWXFhe0N1vI1_z-06EzJ22pz95_gBrId).
 
 The idea was to showcase how to build a real application using AWS, Serverless, and Node.js. The application is still minimal but usable.
 
@@ -10,7 +10,7 @@ The idea was to showcase how to build a real application using AWS, Serverless, 
 ## What are the use cases?
 
 Imagine that you have a file you want to share with others, or even with yourself on another device. You don't want to use Google Drive, Dropbox, or any of the public cloud services, perhaps because they are blocked in some way.
-This codebase will allow you to deploy your own, branded file-sharing service!
+This codebase will allow you to deploy your own, **branded** file-sharing service!
 
 
 ## Features
@@ -58,6 +58,7 @@ The first step is to get the code locally by cloning this repository:
 
 ```bash
 git clone git@github.com:awsbites/weshare.click.git
+cd weshare.click
 ```
 
 Now you can run the following script to download the necessary dependencies for every package:
@@ -68,13 +69,39 @@ Now you can run the following script to download the necessary dependencies for 
 
 ### 2. Configuration
 
-TODO ...
+Before deploying your weshare instance you need to provide some configuration.
+
+To do that you have to create a file named `config.cjs` at the root of the project with the following content:
+
+```js
+// @ts-check
+'use strict'
+
+const { defineConfig } = require('./weshare.cjs')
+
+exports.config = defineConfig({
+  // region: 'eu-west-1', // inferred from AWS_REGION or DEFAULT_AWS_REGION (or 'eu-west-1' if not set)
+  // stage: 'dev', // the name of the stage to deploy to (e.g. 'dev', 'prod')
+  domain: '' // <-- ADD YOUR DOMAIN NAME HERE (e.g. 'weshare.click')
+})
+```
+
+You only need to specify the `domain` name but you can also change the default `region` and the `stage`.
+
 
 ### 3. Deployment
 
 TODO ...
 
+### 4. Create users
+
+TODO ...
+
 ## Usage
+
+TODO ...
+
+## Uninstall
 
 TODO ...
 

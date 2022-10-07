@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/awsbites/weshare.click#readme",
   "devDependencies": {
+    "@types/node": "^18.8.3",
     "eslint": "^8.22.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.26.0",

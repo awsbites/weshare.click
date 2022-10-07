@@ -4,14 +4,14 @@ frameworkVersion: '3'
 provider:
   name: aws
   runtime: nodejs16.x
-  stage: dev
-  region: eu-west-1
+  stage: ${file(../config.cjs):config.stage}
+  region: ${file(../config.cjs):config.region}
 
 plugins:
   - serverless-iam-roles-per-function
 
 custom:
-  domainName: weshare.click
+  domainName: ${file(../config.cjs):config.domain}
 
 resources:
   Resources:

@@ -105,14 +105,44 @@ To deploy all the stacks you can run:
 <details>
   <summary><h4>Configure NS records for the new hosted zone</h4></summary>
 
-When the new hosted zone is created it gets a `NS` record that contains 4 different name servers. You will need to update your domain configuration (in your domain provider site) to point to the nameserver to the 4 name servers in this record.
+When the new hosted zone is created it gets an `NS` record that contains 4 different name servers. You will need to update your domain configuration (in your domain provider site) to point to the nameserver to the 4 name servers in this record.
 
-If you need a one liner on how to get the name servers:
+If you need a one-liner on how to get the name servers:
 
 ```bash
 export DOMAIN='example.com' # <-- replace with your actual domain name
 aws route53 get-hosted-zone --id $(aws route53 list-hosted-zones-by-name --dns-name $DOMAIN | jq -r .HostedZones[0].Id) | jq -r .DelegationSet.NameServers[]
 ```
+
+If you are using a subdomain (e.g. `files.example.com`) and you are managing the top-level domain  (e.g. `example.com`) with a Hosted Zone in Route53, you can configure a name server delegation with:
+
+```bash
+export TOP_LEVEL_DOMAIN='example.com'
+export DOMAIN='files.example.com'
+export HOSTED_ZONE_ID=$(aws route53 list-hosted-zones-by-name --dns-name $DOMAIN | jq -r .HostedZones[0].Id)
+export NAMESERVERS=$(aws route53 get-hosted-zone --id $HOSTED_ZONE_ID | jq '.DelegationSet.NameServers | map({Value: .})')
+export COMMAND=$(cat << EOF
+{
+  "Comment": "delegating subdomain to hosted zone",
+  "Changes": [
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "${DOMAIN}",
+        "Type": "NS",
+        "TTL": 300,
+        "ResourceRecords":  ${NAMESERVERS}
+      }
+    }
+  ]
+}
+EOF
+)
+aws route53 change-resource-record-sets --hosted-zone-id $HOSTED_ZONE_ID --change-batch "${COMMAND}"
+```
+
+Of course, if this looks like too much code, you can do the same on the AWS web console! 😎
+
 
 </details>
 

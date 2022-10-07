@@ -23,7 +23,7 @@ provider:
 
 custom:
   domainName: ${file(../config.cjs):config.domain}
-  userPoolDomain: ${self:service}-${sls:stage}
+  userPoolDomain: ${file(./unique-user-pool-domain.cjs):name}
 
 functions:
   createDeviceAuthorizationRequest:

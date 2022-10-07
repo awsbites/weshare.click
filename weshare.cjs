@@ -9,7 +9,7 @@
  * @typedef {Object} Config
  * @property {Region=} region - The AWS region to use for the deployment
  * @property {string=} stage - The AWS region to use for the deployment
- * @property {string} domain - The domain name to use for the deployment (e.g. weshare.click)
+ * @property {string} domain - The domain name to use for the deployment (e.g. files.weshare.click)
  */
 
 /**

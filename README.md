@@ -82,16 +82,33 @@ const { defineConfig } = require('./weshare.cjs')
 exports.config = defineConfig({
   // region: 'eu-west-1', // inferred from AWS_REGION or DEFAULT_AWS_REGION (or 'eu-west-1' if not set)
   // stage: 'dev', // the name of the stage to deploy to (e.g. 'dev', 'prod')
-  domain: '' // <-- ADD YOUR DOMAIN NAME HERE (e.g. 'weshare.click')
+  domain: '' // <-- ADD YOUR DOMAIN NAME HERE (e.g. 'files.weshare.click' or 'weshare.click')
 })
 ```
+
+> **Note**: If you don't like copy pasting you can instead run `mv config.cjs~sample config.cjs`)
 
 You only need to specify the `domain` name but you can also change the default `region` and the `stage`.
 
 
+
 ### 3. Deployment
 
+To deploy all the stacks you can run:
+
+```bash
+./deploy.sh
+```
+
+> **Warning**: The first deployment will need some manual intervention. The deployment will create a new Route 53 hosted zone. You will need to make sure that the DNS are propagated correctly to that new Hosted Zone. This is something that needs to be done **DURING THE FIRST DEPLOYMENT**. In fact, the deployment will also create a certificate in ACM and it will try to validate it based on resolving some DNS on that hosted zone. Until ACM is able to validate the domain, your deployment will be pending. See below how to manually configure the Hosted zones below.
+
+<details>
+  <summary><h4>Configure NS records for the new hosted zone</h4></summary>
+
 TODO ...
+
+</details>
+
 
 ### 4. Create users
 

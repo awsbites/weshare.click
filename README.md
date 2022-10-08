@@ -50,6 +50,7 @@ The CLI authentication uses the OAuth 2.0 device authentication flow, which is n
   - [Serverless framework](https://www.serverless.com/framework) (v3 or higher)
   - Your custom domain (easier if already registered with Route53)
   - A bash-compatible environment (Tested on Mac OSx but it should also work on Linux and Windows with subsystem for Linux)
+  - [`jq`](https://stedolan.github.io/jq/): optional but useful if you need to run some of the suggested CLI commands below
 
 
 ### 1. Get the code & dependencies
@@ -157,10 +158,14 @@ To be able to login into weshare, you need to create some users first. You can d
 Here's how to add a new user to the user pool from the AWS CLI:
 
 ```bash
-# TODO
-# find user pool id
-# run command to add a user to that pool
+export USER_POOL_NAME="weshare-user-pool-dev" # <-- update if you changed the `serviceName` or the `stage` in the config
+export USERNAME="foo@bar.com" # <-- replace with the username you want to add (needs to be an email)
+export TEMP_PASS="ChangeMeSoon(1234)" # <-- replace with the temporary password
+export USER_POOL_ID=$(aws cognito-idp list-user-pools --max-results 60 | jq -r ".UserPools[] | select(.Name | contains(\"${USER_POOL_NAME}\")) | .Id")
+aws cognito-idp admin-create-user --user-pool-id "${USER_POOL_ID}" --username "${USERNAME}" --temporary-password "${TEMP_PASS}"
 ```
+
+If all went well you should receive an email with your temporary password. After the first login, you'll be requested to change the password.
 
 
 ## Usage

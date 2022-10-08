@@ -2,7 +2,7 @@ import { basename } from 'node:path'
 import { createReadStream } from 'node:fs'
 import { stat } from 'node:fs/promises'
 import { request } from 'undici'
-import {config} from '../config.js'
+import { config } from '../config.js'
 
 export default async function upload (filepath) {
   const baseurl = config.get('baseurl')
@@ -30,7 +30,7 @@ export default async function upload (filepath) {
       headers: {
         accept: 'application/json',
         'user-agent': 'weshare.click cli',
-        'authorization': `Bearer ${accessToken}`
+        authorization: `Bearer ${accessToken}`
       }
     })
     if (shareUrlResp.statusCode !== 201) {

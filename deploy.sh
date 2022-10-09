@@ -6,6 +6,7 @@ packages="domain auth backend"
 for package in $packages; do
   cd $package
   echo "😎 Deploying '$package'"
-  sls deploy
+  npx serverless deploy
   cd ..
+  echo ""
 done

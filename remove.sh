@@ -6,6 +6,7 @@ packages="backend auth domain"
 for package in $packages; do
   cd $package
   echo "😎 Deleting '$package'"
-  sls remove
+  npx serverless remove
   cd ..
+  echo ""
 done

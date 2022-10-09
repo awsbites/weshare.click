@@ -49,7 +49,7 @@ The CLI authentication uses the OAuth 2.0 device authentication flow, which is n
   - [Node.js](https://nodejs.org/) (v16 or higher)
   - [Serverless framework](https://www.serverless.com/framework) (v3 or higher)
   - Your custom domain (easier if already registered with Route53)
-  - A bash-compatible environment (Tested on Mac OSx but it should also work on Linux and Windows with subsystem for Linux)
+  - A bash-compatible environment (Tested on macOS but it should also work on Linux and Windows with subsystem for Linux)
   - [`jq`](https://stedolan.github.io/jq/): optional but useful if you need to run some of the suggested CLI commands below
 
 

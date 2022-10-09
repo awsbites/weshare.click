@@ -11,4 +11,5 @@ for package in $packages; do
   echo "😎 Installing dependencies for '$package'"
   npm install
   cd ..
+  echo ""
 done

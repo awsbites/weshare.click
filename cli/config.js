@@ -13,7 +13,10 @@ const schema = {
   },
   refresh_token: {
     type: 'string'
-  },
+  }
 }
 
-export const config = new Conf({ schema })
+export const config = new Conf({
+  schema,
+  projectName: 'weshare'
+})

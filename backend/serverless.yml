@@ -1,4 +1,4 @@
-service: weshare-backend
+service: ${file(../config.cjs):config.serviceName}-backend
 frameworkVersion: "3"
 
 plugins:
@@ -11,7 +11,7 @@ package:
 provider:
   name: aws
   runtime: nodejs16.x
-  region: eu-west-1
+  region: ${file(../config.cjs):config.region}
   tracing:
     apiGateway: true
     lambda: true
@@ -30,7 +30,7 @@ provider:
           - !Ref UserPoolClientIdParameter
 
 custom:
-  domainName: weshare.click
+  domainName: ${file(../config.cjs):config.domain}
 
 functions:
   createShare:

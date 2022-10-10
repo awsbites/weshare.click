@@ -1,4 +1,4 @@
-service: weshare-auth
+service: ${file(../config.cjs):config.serviceName}-auth
 frameworkVersion: "3"
 
 plugins:
@@ -7,7 +7,8 @@ plugins:
 provider:
   name: aws
   runtime: nodejs16.x
-  region: eu-west-1
+  region: ${file(../config.cjs):config.region}
+  stage: ${file(../config.cjs):config.stage}
   tracing:
     apiGateway: true
     lambda: true
@@ -21,8 +22,8 @@ provider:
     USER_POOL_DOMAIN: ${self:custom.userPoolDomain}
 
 custom:
-  domainName: weshare.click
-  userPoolDomain: ${self:service}-${sls:stage}
+  domainName: ${file(../config.cjs):config.domain}
+  userPoolDomain: ${file(./unique-user-pool-domain.cjs):name}
 
 functions:
   createDeviceAuthorizationRequest:
@@ -100,7 +101,7 @@ resources:
     UserPool:
       Type: AWS::Cognito::UserPool
       Properties:
-        UserPoolName: user-pool-${sls:stage}
+        UserPoolName: ${file(../config.cjs):config.serviceName}-user-pool-${sls:stage}
         UsernameAttributes: [email]
         AutoVerifiedAttributes: [email]
         AdminCreateUserConfig:

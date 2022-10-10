@@ -1,0 +1,11 @@
+// @ts-check
+'use strict'
+
+const { defineConfig } = require('./weshare.cjs')
+
+exports.config = defineConfig({
+  // region: 'eu-west-1', // inferred from AWS_REGION or DEFAULT_AWS_REGION (or 'eu-west-1' if not set)
+  // stage: 'dev', // the name of the stage to deploy to (e.g. 'dev', 'prod')
+  // serviceName: 'weshare', // the name of the service (for resource naming)
+  domain: '' // <-- ADD YOUR DOMAIN NAME HERE (e.g. 'files.weshare.click' or 'weshare.click')
+})

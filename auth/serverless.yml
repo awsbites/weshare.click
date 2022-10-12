@@ -17,6 +17,7 @@ provider:
     TABLE_NAME: !Ref Table
     POWERTOOLS_SERVICE_NAME: auth
     POWERTOOLS_METRICS_NAMESPACE: auth
+    USER_POOL_ID: !Ref UserPool
     CLIENT_ID: !Ref UserPoolClient
     BASE_URL: https://${self:custom.domainName}
     USER_POOL_DOMAIN: ${self:custom.userPoolDomain}
@@ -87,6 +88,11 @@ functions:
           - dynamodb:GetItem
         Resource:
           - !GetAtt Table.Arn
+      - Effect: Allow
+        Action:
+          - cognito-idp:DescribeUserPoolClient
+        Resource:
+          - !Sub "${UserPool.Arn}"
 
 resources:
   Resources:
@@ -131,6 +137,7 @@ resources:
       Type: AWS::Cognito::UserPoolClient
       Properties:
         ClientName: user-pool-client-${sls:stage}
+        GenerateSecret: true
         ExplicitAuthFlows:
           - ALLOW_USER_SRP_AUTH
           - ALLOW_REFRESH_TOKEN_AUTH

@@ -1,8 +1,12 @@
 {
   "name": "weshare",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Weshare.click CLI client for private file sharing over S3",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "engineStrict": true,
+  "main": "cli.js",
   "type": "module",
   "bin": {
     "weshare": "cli.js",
@@ -11,9 +15,28 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "File sharing",
+    "File transfer",
+    "AWS",
+    "S3",
+    "CLI",
+    "wetransfer",
+    "dropbox",
+    "transfer",
+    "sharing",
+    "files",
+    "upload",
+    "private sharing"
+  ],
+  "author": "Luciano Mammino & Eoin Shanaghy",
+  "homepage": "https://github.com/awsbites/weshare.click#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/awsbites/weshare.click.git",
+    "directory": "cli"
+  },
+  "license": "MIT",
   "dependencies": {
     "commander": "^9.4.0",
     "conf": "^10.2.0",

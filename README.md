@@ -99,7 +99,7 @@ You only need to specify the `domain` name but you can also change the default `
 To deploy all the stacks you can run:
 
 ```bash
-./deploy.sh
+npx serverless deploy
 ```
 
 > **Warning**: The first deployment will need some manual intervention. The deployment will create a new Route 53 hosted zone. You will need to make sure that the DNS are propagated correctly to that new Hosted Zone. This is something that needs to be done **DURING THE FIRST DEPLOYMENT**. In fact, the deployment will also create a certificate in ACM and it will try to validate it based on resolving some DNS on that hosted zone. Until ACM is able to validate the domain, your deployment will be pending. See below how to manually configure the Hosted zone.
@@ -182,7 +182,10 @@ For more info use `weshare --help`
 To remove this app from this account you need to:
 
   1. Delete all the files from your files bucket and the bucket itself
-  2. Run `./remove.sh` to remove all the stacks
+  2. To remove all the stacks run:
+  ```bash
+  npx serverless remove
+  ```
   3. Clean up DNS-related changes (e.g. delegation from another hosted zone or name server configuration in your domain provider)
 
 

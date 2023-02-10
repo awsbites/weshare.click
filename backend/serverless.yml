@@ -26,9 +26,9 @@ provider:
       jwtAuthorizer:
         type: jwt
         identitySource: $request.header.Authorization
-        issuerUrl: !Sub 'https://cognito-idp.${AWS::Region}.amazonaws.com/${UserPoolIdParameter}'
+        issuerUrl: !Sub 'https://cognito-idp.${AWS::Region}.amazonaws.com/${param:UserPoolId}'
         audience:
-          - !Ref UserPoolClientIdParameter
+          - ${param:UserPoolClientId}
 
 custom:
   domainName: ${file(../config.cjs):config.domain}
@@ -68,14 +68,6 @@ functions:
           - !Sub "arn:aws:s3:::${FileBucket}/shares/*"
 
 resources:
-  Parameters:
-    UserPoolIdParameter:
-      Type: AWS::SSM::Parameter::Value<String>
-      Default: /weshare/${sls:stage}/userPoolId
-    UserPoolClientIdParameter:
-      Type: AWS::SSM::Parameter::Value<String>
-      Default: /weshare/${sls:stage}/userPoolClientId
-
   Resources:
     CustomDomainPathMapping:
       Type: AWS::ApiGatewayV2::ApiMapping

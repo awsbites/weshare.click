@@ -162,20 +162,6 @@ resources:
         CSS: ${file(./user-pool-css.cjs)}
         UserPoolId: !Ref UserPool
 
-    UserPoolId:
-      Type: AWS::SSM::Parameter
-      Properties:
-        Name: /weshare/${sls:stage}/userPoolId
-        Type: String
-        Value: !Ref UserPool
-
-    UserPoolClientId:
-      Type: AWS::SSM::Parameter
-      Properties:
-        Name: /weshare/${sls:stage}/userPoolClientId
-        Type: String
-        Value: !Ref UserPoolClient
-
     Table:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -230,3 +216,9 @@ resources:
               WriteCapacityUnits: 1
             Projection:
               ProjectionType: ALL
+
+  Outputs:
+    UserPoolId:
+      Value: !Ref UserPool
+    UserPoolClientId:
+      Value: !Ref UserPoolClient

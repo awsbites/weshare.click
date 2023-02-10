@@ -1,0 +1,13 @@
+services:
+  auth:
+    path: auth
+    dependsOn: domain
+
+  backend:
+    path: backend
+    params:
+      UserPoolId: ${auth.UserPoolId}
+      UserPoolClientId: ${auth.UserPoolClientId}
+  
+  domain:
+    path: domain

@@ -11,6 +11,7 @@ package:
 provider:
   name: aws
   runtime: nodejs16.x
+  stage: ${file(../config.cjs):config.stage}
   region: ${file(../config.cjs):config.region}
   tracing:
     apiGateway: true

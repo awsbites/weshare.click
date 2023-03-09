@@ -23,7 +23,10 @@ provider:
 
 custom:
   domainName: ${file(../config.cjs):config.domain}
-  userPoolDomain: ${file(./unique-user-pool-domain.cjs):name}
+  userPoolDomain: auth.${self:custom.domainName}
+  # The Hosted Zone for CloudFront distributions is always this value
+  # See https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-aliastarget.html
+  cloudFrontHostedZoneId: Z2FDTNDATAQYW2
 
 functions:
   createDeviceAuthorizationRequest:
@@ -149,11 +152,38 @@ resources:
           - openid
         UserPoolId: !Ref UserPool
 
+    AuthDomainCert:
+      Type: AWS::CertificateManager::Certificate
+      Properties:
+        DomainName: ${self:custom.userPoolDomain}
+        ValidationMethod: DNS
+        DomainValidationOptions:
+          - DomainName: ${self:custom.domainName}
+            HostedZoneId: ${ssm:/weshare/${sls:stage}/domainHostedZone}
+
     UserPoolDomain:  
       Type: AWS::Cognito::UserPoolDomain
       Properties:
         Domain: ${self:custom.userPoolDomain}
         UserPoolId: !Ref UserPool
+        CustomDomainConfig:
+          CertificateArn: !Ref AuthDomainCert
+
+    DomainRecordSet:
+      Type: AWS::Route53::RecordSetGroup
+      Properties:
+        HostedZoneId: ${ssm:/weshare/${sls:stage}/domainHostedZone}
+        RecordSets:
+          - Name: ${self:custom.userPoolDomain}
+            Type: A
+            AliasTarget:
+              DNSName: !GetAtt UserPoolDomain.CloudFrontDistribution
+              HostedZoneId: ${self:custom.cloudFrontHostedZoneId}
+          - Name: ${self:custom.userPoolDomain}
+            Type: AAAA
+            AliasTarget:
+              DNSName: !GetAtt UserPoolDomain.CloudFrontDistribution
+              HostedZoneId: ${self:custom.cloudFrontHostedZoneId}
 
     UserPoolUICustomization:
       Type: AWS::Cognito::UserPoolUICustomizationAttachment

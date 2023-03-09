@@ -51,3 +51,10 @@ resources:
             AliasTarget:
               DNSName: !GetAtt ApiCustomDomain.RegionalDomainName
               HostedZoneId: !GetAtt ApiCustomDomain.RegionalHostedZoneId
+
+    DomainHostedZoneParameter:
+      Type: AWS::SSM::Parameter
+      Properties:
+        Name: /weshare/${sls:stage}/domainHostedZone
+        Type: String
+        Value: !Ref PublicHostedZone

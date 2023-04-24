@@ -18,6 +18,7 @@
     "@aws-lambda-powertools/logger": "^1.2.1",
     "@aws-lambda-powertools/metrics": "^1.2.1",
     "@aws-lambda-powertools/tracer": "^1.2.1",
+    "@aws-sdk/client-cognito-identity-provider": "^3.180.0",
     "@aws-sdk/client-dynamodb": "^3.168.0",
     "@aws-sdk/lib-dynamodb": "^3.168.0",
     "@middy/core": "^3.3.0",

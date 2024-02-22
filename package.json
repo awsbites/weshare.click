@@ -26,5 +26,8 @@
     "eslint-plugin-n": "^15.2.4",
     "eslint-plugin-promise": "^6.0.0",
     "serverless": "^3.38.0"
+  },
+  "dependencies": {
+    "@middy/core": "^5.2.4"
   }
 }

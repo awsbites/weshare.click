@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+import { program } from 'commander'
 import {
   AdminCreateUserCommand,
   AdminDeleteUserCommand,
@@ -7,39 +9,32 @@ import {
   CognitoIdentityProviderClient
 } from '@aws-sdk/client-cognito-identity-provider'
 
-import meow from 'meow'
 import jwt from 'jsonwebtoken'
 import { Chance } from 'chance'
 
-const cli = meow(`
-  Usage
-  $ weshare create-user <EMAIL> --user-pool-id <user-pool-id>
-`, {
-  importMeta: import.meta,
-  flags: {
-    userPoolId: {
-      type: 'string',
-      shortFlag: 'u',
-      isRequired: true
-    },
-    clientId: {
-      type: 'string',
-      shortFlag: 'c',
-      isRequired: true
-    }
-  }
-})
-
-const { clientId, userPoolId } = cli.flags
-const email = cli.input[0]
-
+const cognitoServiceProvider = new CognitoIdentityProviderClient({})
 const generatePassword = () => Chance().string({ length: 16, symbols: true })
 
-const cognitoServiceProvider = new CognitoIdentityProviderClient({})
+program
+  .name('create-user')
+  .description('Creates or removes users in the Cognito User Pool')
 
-createUser(email)
+program
+  .command('create <email>')
+  .description('Create a new user')
+  .requiredOption('-u, --user-pool-id <userPoolId>')
+  .requiredOption('-c, --client-id <clientId>')
+  .action(createUser)
 
-export async function createUser (email) {
+program
+  .command('remove <email>')
+  .description('Remove an existing user')
+  .requiredOption('-u, --user-pool-id <userPoolId>')
+  .action(deleteUser)
+
+program.parse()
+
+export async function createUser (email,{ userPoolId, clientId }) {
   const password = generatePassword()
 
   const createRequest = {
@@ -85,8 +80,7 @@ export async function createUser (email) {
     challengeResponse.AuthenticationResult.IdToken
   )
 
-  console.log({ userId })
-  const resetPasswordResponse = await cognitoServiceProvider.send(
+  await cognitoServiceProvider.send(
     new AdminResetUserPasswordCommand({
       Username: email,
       UserPoolId: userPoolId,
@@ -96,7 +90,7 @@ export async function createUser (email) {
     })
   )
 
-  console.log(resetPasswordResponse)
+  console.log({ email, userId })
 
   // const user = {
   //   userId,
@@ -108,11 +102,10 @@ export async function createUser (email) {
   // return user;
 }
 
-export async function deleteUser (user) {
-  const backendConfig = await loadBackendConfig()
+export async function deleteUser (email, { userPoolId }) {
   const deleteRequest = {
-    UserPoolId: backendConfig.userPoolId,
-    Username: user.email
+    UserPoolId: userPoolId,
+    Username: email
   }
   await cognitoServiceProvider.send(new AdminDeleteUserCommand(deleteRequest))
 }

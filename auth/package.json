@@ -13,21 +13,28 @@
   "devDependencies": {
     "@middy/http-response-serializer": "^3.3.1",
     "chance": "^1.1.11",
+    "commander": "^12.0.0",
     "jsonwebtoken": "^9.0.2",
-    "meow": "^13.2.0",
+    "serverless": "^3.38.0",
     "serverless-iam-roles-per-function": "^3.2.0"
   },
   "dependencies": {
+    "@aws-crypto/client-node": "^4.0.0",
     "@aws-lambda-powertools/logger": "^1.2.1",
     "@aws-lambda-powertools/metrics": "^1.2.1",
     "@aws-lambda-powertools/tracer": "^1.2.1",
     "@aws-sdk/client-cognito-identity-provider": "^3.515.0",
     "@aws-sdk/client-dynamodb": "^3.168.0",
+    "@aws-sdk/client-ssm": "^3.519.0",
     "@aws-sdk/lib-dynamodb": "^3.168.0",
     "@middy/core": "^3.3.0",
     "@middy/http-header-normalizer": "^3.3.1",
     "@middy/http-urlencode-body-parser": "^3.3.1",
+    "@middy/ssm": "^5.2.4",
+    "@middy/util": "^5.2.4",
     "crypto-random-string": "^5.0.0",
+    "form-data": "^4.0.0",
+    "mailgun.js": "^10.2.1",
     "undici": "^5.10.0"
   }
 }

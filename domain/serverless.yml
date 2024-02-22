@@ -1,9 +1,10 @@
+# Defines resources for the domain used for APIs
 service: ${file(../config.cjs):config.serviceName}-domain
 frameworkVersion: '3'
 
 provider:
   name: aws
-  runtime: nodejs16.x
+  runtime: nodejs20.x
   stage: ${file(../config.cjs):config.stage}
   region: ${file(../config.cjs):config.region}
 
@@ -12,14 +13,10 @@ plugins:
 
 custom:
   domainName: ${file(../config.cjs):config.domain}
+  domainHostedZoneId: ${ssm(us-east-1):/weshare/${sls:stage}/domainHostedZone}
 
 resources:
   Resources:
-    PublicHostedZone:
-      Type: AWS::Route53::HostedZone
-      Properties:
-        Name: ${self:custom.domainName}
-
     DomainCert:
       Type: AWS::CertificateManager::Certificate
       Properties:
@@ -27,7 +24,7 @@ resources:
         ValidationMethod: DNS
         DomainValidationOptions:
           - DomainName: ${self:custom.domainName}
-            HostedZoneId: !Ref PublicHostedZone
+            HostedZoneId: ${self:custom.domainHostedZoneId}
 
     ApiCustomDomain:
       Type: AWS::ApiGatewayV2::DomainName
@@ -39,7 +36,7 @@ resources:
     DomainRecordSet:
       Type: AWS::Route53::RecordSetGroup
       Properties:
-        HostedZoneId: !Ref PublicHostedZone
+        HostedZoneId: ${self:custom.domainHostedZoneId}
         RecordSets:
           - Name: ${self:custom.domainName}
             Type: A
@@ -51,10 +48,3 @@ resources:
             AliasTarget:
               DNSName: !GetAtt ApiCustomDomain.RegionalDomainName
               HostedZoneId: !GetAtt ApiCustomDomain.RegionalHostedZoneId
-
-    DomainHostedZoneParameter:
-      Type: AWS::SSM::Parameter
-      Properties:
-        Name: /weshare/${sls:stage}/domainHostedZone
-        Type: String
-        Value: !Ref PublicHostedZone

@@ -6,7 +6,7 @@ plugins:
 
 provider:
   name: aws
-  runtime: nodejs16.x
+  runtime: nodejs20.x
   region: ${file(../config.cjs):config.region}
   stage: ${file(../config.cjs):config.stage}
   tracing:
@@ -17,12 +17,13 @@ provider:
     TABLE_NAME: !Ref Table
     POWERTOOLS_SERVICE_NAME: auth
     POWERTOOLS_METRICS_NAMESPACE: auth
-    CLIENT_ID: !Ref UserPoolClient
     BASE_URL: https://${self:custom.domainName}
     USER_POOL_DOMAIN: ${self:custom.userPoolDomain}
 
 custom:
   domainName: ${file(../config.cjs):config.domain}
+  domainHostedZoneId: ${ssm(us-east-1):/weshare/${sls:stage}/domainHostedZone}
+  authDomainCertArn: ${ssm(us-east-1):/weshare/${sls:stage}/authDomainCertArn}
   userPoolDomain: auth.${self:custom.domainName}
   # The Hosted Zone for CloudFront distributions is always this value
   # See https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-aliastarget.html
@@ -59,6 +60,8 @@ functions:
           - dynamodb:Query
         Resource:
           - !Sub "${Table.Arn}/*"
+    environment:
+      CLIENT_ID: !Ref UserPoolClient
 
   processIdpCallback:
     handler: idp-callback-handler.handleEvent
@@ -90,6 +93,12 @@ functions:
           - dynamodb:GetItem
         Resource:
           - !GetAtt Table.Arn
+    environment:
+      CLIENT_ID: !Ref UserPoolClient
+
+  cognitoCustomMessage:
+    handler: cognito-custom-message.handler
+    description: Process Cognito custom email message
 
 resources:
   Resources:
@@ -116,6 +125,17 @@ resources:
             RequireUppercase: false
             RequireNumbers: false
             RequireSymbols: false
+        AccountRecoverySetting:
+          RecoveryMechanisms:
+          - Name: verified_email
+            Priority: 1
+        EmailConfiguration:
+          EmailSendingAccount: COGNITO_DEFAULT
+        VerificationMessageTemplate:
+          DefaultEmailOption: CONFIRM_WITH_CODE
+        MfaConfiguration: "OFF"
+        LambdaConfig:
+          CustomMessage: !GetAtt CognitoCustomMessageLambdaFunction.Arn
         Schema:
           - AttributeDataType: String
             Mutable: true
@@ -137,6 +157,7 @@ resources:
         ExplicitAuthFlows:
           - ALLOW_USER_SRP_AUTH
           - ALLOW_REFRESH_TOKEN_AUTH
+          - ALLOW_ADMIN_USER_PASSWORD_AUTH
         RefreshTokenValidity: 30
         SupportedIdentityProviders:
           - COGNITO
@@ -152,27 +173,18 @@ resources:
           - openid
         UserPoolId: !Ref UserPool
 
-    AuthDomainCert:
-      Type: AWS::CertificateManager::Certificate
-      Properties:
-        DomainName: ${self:custom.userPoolDomain}
-        ValidationMethod: DNS
-        DomainValidationOptions:
-          - DomainName: ${self:custom.domainName}
-            HostedZoneId: ${ssm:/weshare/${sls:stage}/domainHostedZone}
-
     UserPoolDomain:  
       Type: AWS::Cognito::UserPoolDomain
       Properties:
         Domain: ${self:custom.userPoolDomain}
         UserPoolId: !Ref UserPool
         CustomDomainConfig:
-          CertificateArn: !Ref AuthDomainCert
+          CertificateArn: ${self:custom.authDomainCertArn}
 
     DomainRecordSet:
       Type: AWS::Route53::RecordSetGroup
       Properties:
-        HostedZoneId: ${ssm:/weshare/${sls:stage}/domainHostedZone}
+        HostedZoneId: ${self:custom.domainHostedZoneId}
         RecordSets:
           - Name: ${self:custom.userPoolDomain}
             Type: A
@@ -185,12 +197,14 @@ resources:
               DNSName: !GetAtt UserPoolDomain.CloudFrontDistribution
               HostedZoneId: ${self:custom.cloudFrontHostedZoneId}
 
-    UserPoolUICustomization:
-      Type: AWS::Cognito::UserPoolUICustomizationAttachment
-      Properties:
-        ClientId: !Ref UserPoolClient
-        CSS: ${file(./user-pool-css.cjs)}
-        UserPoolId: !Ref UserPool
+    # UserPoolUICustomization:
+    #   # When using a custom domain for the Cognito UserPoolDomain, we get this error back from CloudFormation:
+    #   # "The domain auth.wsh.codespyre.com associated with this user pool is currently not Active."
+    #   Type: AWS::Cognito::UserPoolUICustomizationAttachment
+    #   Properties:
+    #     ClientId: !Ref UserPoolClient
+    #     CSS: ${file(./user-pool-css.cjs)}
+    #     UserPoolId: !Ref UserPool
 
     UserPoolId:
       Type: AWS::SSM::Parameter
@@ -260,3 +274,18 @@ resources:
               WriteCapacityUnits: 1
             Projection:
               ProjectionType: ALL
+
+    CognitoCustomMessagePermission:
+      Type: AWS::Lambda::Permission
+      DependsOn:
+      - CognitoCustomMessageLambdaFunction
+      - UserPool
+      Properties:
+        Action: lambda:InvokeFunction
+        FunctionName: 
+          Ref: CognitoCustomMessageLambdaFunction
+        Principal: cognito-idp.amazonaws.com
+        SourceArn: 
+          Fn::GetAtt: 
+            - UserPool
+            - Arn

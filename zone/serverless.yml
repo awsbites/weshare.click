@@ -1,0 +1,45 @@
+service: ${file(../config.cjs):config.serviceName}-zone
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: us-east-1   # CloudFront and API Gateway certificates must be in us-east-1
+  stage: ${file(../config.cjs):config.stage}
+
+custom:
+  domainName: ${file(../config.cjs):config.domain}
+  userPoolDomain: auth.${self:custom.domainName}
+  # The Hosted Zone for CloudFront distributions is always this value
+  # See https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-aliastarget.html
+  cloudFrontHostedZoneId: Z2FDTNDATAQYW2
+
+resources:
+  Resources:
+    PublicHostedZone:
+      Type: AWS::Route53::HostedZone
+      Properties:
+        Name: ${self:custom.domainName}
+
+    AuthDomainCert:
+      Type: AWS::CertificateManager::Certificate
+      Properties:
+        DomainName: ${self:custom.userPoolDomain}
+        ValidationMethod: DNS
+        DomainValidationOptions:
+          - DomainName: ${self:custom.userPoolDomain}
+            HostedZoneId: !Ref PublicHostedZone
+
+    DomainHostedZoneParameter:
+      Type: AWS::SSM::Parameter
+      Properties:
+        Name: /weshare/${sls:stage}/domainHostedZone
+        Type: String
+        Value: !Ref PublicHostedZone
+
+    AuthDomainCertParameter:
+      Type: AWS::SSM::Parameter
+      Properties:
+        Name: /weshare/${sls:stage}/authDomainCertArn
+        Type: String
+        Value: !Ref AuthDomainCert

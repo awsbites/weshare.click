@@ -10,7 +10,7 @@ package:
 
 provider:
   name: aws
-  runtime: nodejs16.x
+  runtime: nodejs20.x
   stage: ${file(../config.cjs):config.stage}
   region: ${file(../config.cjs):config.region}
   tracing:

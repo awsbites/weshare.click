@@ -32,9 +32,10 @@ export default async function login() {
     }
   })
   const deviceAuthRespBody = await deviceAuthResp.body.json()
+  console.log(deviceAuthRespBody)
 
   // start device flow and get redirect url and codes
-  console.log(`Please login at ${deviceAuthRespBody.verification_uri_complete}`)
+  console.log(`Please log in at ${deviceAuthRespBody.verification_uri_complete}`)
   try {
     // open the browser
     await open(deviceAuthRespBody.verification_uri_complete)

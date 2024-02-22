@@ -12,12 +12,16 @@
   "license": "MIT",
   "devDependencies": {
     "@middy/http-response-serializer": "^3.3.1",
+    "chance": "^1.1.11",
+    "jsonwebtoken": "^9.0.2",
+    "meow": "^13.2.0",
     "serverless-iam-roles-per-function": "^3.2.0"
   },
   "dependencies": {
     "@aws-lambda-powertools/logger": "^1.2.1",
     "@aws-lambda-powertools/metrics": "^1.2.1",
     "@aws-lambda-powertools/tracer": "^1.2.1",
+    "@aws-sdk/client-cognito-identity-provider": "^3.515.0",
     "@aws-sdk/client-dynamodb": "^3.168.0",
     "@aws-sdk/lib-dynamodb": "^3.168.0",
     "@middy/core": "^3.3.0",

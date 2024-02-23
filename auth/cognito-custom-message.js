@@ -3,7 +3,7 @@ import formData from 'form-data'
 import middy from '@middy/core'
 import middySsm from '@middy/ssm'
 import encryptionSdk from '@aws-crypto/client-node'
-
+import { URLSearchParams } from 'url'
 const { STAGE, KEY_ALIAS, KEY_ARN } = process.env
 const EMAIL_DOMAIN = 'sandbox4e5d8a28162548389a95edc71719a3a4.mailgun.org'
 
@@ -21,27 +21,44 @@ const globals = {}
 export async function cognitoCustomEmailSenderHandler (event) {
   console.log(event)
   const { request } = event
-  if (event.triggerSource === 'CustomEmailSender_ForgotPassword' && request?.clientMetadata?.InitationFlow === 'true') {
+  if (event.triggerSource === 'CustomEmailSender_ForgotPassword') {
     const { email, 'cognito:user_status': userStatus, email_verified: emailVerified } = request.userAttributes
-    if (emailVerified === 'true' && userStatus === 'CONFIRMED') {
+    if (emailVerified !== 'true') {
+      throw new Error('Email is not verified - unexpected ForgotPassword request: ' + JSON.stringify(request.userAttributes))
+    } else {
       const encryptedCode = Buffer.from(request.code, 'base64')
-      const { plaintext: plaintextCode } = await decrypt(keyring, encryptedCode)
-      await sendInvitationEmail(email, plaintextCode)
+      const { plaintext: code } = await decrypt(keyring, encryptedCode)
+      const url = new URL('http://localhost:3000/invitation')
+      url.searchParams.set('email', email)
+      url.searchParams.set('code', code)
+
+      let htmlMessage
+      if (request?.clientMetadata?.InitationFlow === 'true') {
+        htmlMessage = `
+        <h1>You are invited 🤩</h1>
+
+        You have been invited to join Weshare.
+
+        <a href="${url}">Click here to accept the invitation</a>
+        `
+      } else {
+        htmlMessage = `
+        <h1>You forgot your password 🤪</h1>
+
+        <a href="${url}">Click here to reset your password</a>
+        `
+      }
+      await sendEmail(email, htmlMessage)
     }
   }
 }
 
-async function sendInvitationEmail (email, code) {
-  const message = `
-<h1>You are invited 🤩</h1>
-
-Your code is ${code}
-`
+async function sendEmail (email, htmlMessage) {
   const data = {
     from: `Mailgun Sandbox <postmaster@${EMAIL_DOMAIN}>`,
     to: [email],
     subject: 'Hello',
-    html: message
+    html: htmlMessage
   }
   const response = await globals.mailgun.messages.create(EMAIL_DOMAIN, data)
   console.log(response)

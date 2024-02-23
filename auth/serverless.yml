@@ -172,7 +172,6 @@ resources:
           CustomEmailSender:
             LambdaArn: !GetAtt CognitoCustomMessageLambdaFunction.Arn
             LambdaVersion: V1_0
-
         Schema:
           - AttributeDataType: String
             Mutable: true

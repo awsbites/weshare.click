@@ -1,3 +1,5 @@
+'use client'
+
 import InvitationReset from '@/app/components/InvitationReset'
 
 const Page = () => {

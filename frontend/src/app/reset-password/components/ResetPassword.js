@@ -16,6 +16,7 @@ const ResetPassword = () => {
   const handleSubmit = async (event) => {
     event.preventDefault()
     setLoading(true)
+    setError('')
     const { username } = event.target.elements
     try {
       await resetPassword({ username: username.value })

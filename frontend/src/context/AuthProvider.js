@@ -34,22 +34,24 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const confirmInvitation = async (email, password, code) => {
-    try {
-      if (user) {
-        await logOut();
-      }
-      await confirmResetPassword({ username: email, confirmationCode: code, newPassword: password });
-      await signIn({ username: email, password });
-      await checkUser()
-      router.push('/');
-    } catch (error) {
-      console.error('Error confirming invitation: ', error);
+  /**
+   * Confirmation for reset password or invitation flows
+   * @param {*} email 
+   * @param {*} password 
+   * @param {*} code 
+   */
+  const confirmResetCode = async (email, password, code) => {
+    if (user) {
+      await logOut();
     }
+    await confirmResetPassword({ username: email, confirmationCode: code, newPassword: password });
+    await signIn({ username: email, password });
+    await checkUser()
+    router.push('/');
   };
 
   return (
-    <AuthContext.Provider value={{ loading, user, checkUser, confirmInvitation, logOut }}>
+    <AuthContext.Provider value={{ loading, user, checkUser, confirmResetCode, logOut }}>
       {children}
     </AuthContext.Provider>
   );

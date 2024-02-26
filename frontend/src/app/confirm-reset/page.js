@@ -2,10 +2,10 @@ import InvitationReset from '@/app/components/InvitationReset'
 
 const Page = () => {
   return <InvitationReset
-    title="Invitation"
-    description="You have been invited. Set your password to continue."
+    title="Reset Password"
+    description="Set a new password to complete your password reset"
     showTos={true}
-    confirmButtonText="Confirm Invitation"
+    confirmButtonText="Confirm Reset"
   />
 }
 

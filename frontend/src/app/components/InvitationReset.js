@@ -1,17 +1,19 @@
 'use client'
-import { signIn } from 'aws-amplify/auth'
-import { useAuth } from '../../../context/AuthProvider'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useState } from 'react'
+import { useAuth } from '@/context/AuthProvider'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { CardTitle, CardDescription, CardHeader, CardContent, Card } from '@/components/ui/card'
+import { CardTitle, CardDescription, CardHeader, CardContent, Card, CardFooter } from '@/components/ui/card'
 
-const Invitation = () => {
-  const { confirmInvitation } = useAuth()
+/**
+ * A view that can be used as an invitation or a reset password view.
+ */
+const InvitationReset = ({ title, description, showTos, confirmButtonText }) => {
+  const { confirmResetCode } = useAuth()
   const [error, setError] = useState('')
   const searchParams = useSearchParams()
   const code = searchParams.get('code')
@@ -22,9 +24,9 @@ const Invitation = () => {
     setError('')
     const { username, password, code } = event.target.elements
     try {
-      await confirmInvitation(username.value, password.value, code.value)
+      await confirmResetCode(username.value, password.value, code.value)
     } catch (error) {
-      console.error('Error confirming invitation', error)
+      console.error('Error confirming', error)
       setError(error.message || 'Unknown error')
     }
   }
@@ -32,11 +34,10 @@ const Invitation = () => {
   return (
     <div className='h-screen w-screen flex justify-center items-center'>
       <form onSubmit={handleSubmit} className="space-y-6">
-        {error && <p className="error-message">{error}</p>}
         <Card className="mx-auto max-w-sm">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2x1 font-bold">Invitation</CardTitle>
-            <CardDescription>You have been invited. Set your password to continue.</CardDescription>
+            <CardTitle className="text-2x1 font-bold">{title}</CardTitle>
+            <CardDescription>{description}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -49,29 +50,34 @@ const Invitation = () => {
                 <Input name="password" type="password" placeholder="Password" required />
               </div>
               <input name="code" type="password" className="input" required readOnly hidden value={code} />
+              <div className='space-y-2'>
+                {error && <p className="text-sm text-red-600">{error}</p>}
+              </div>
               <Button className="w-full" type="submit">
-                Accept Invitation
+                {confirmButtonText} 
               </Button>
-              <p className="text-xs text-muted-foreground">
-                By clicking continue, you agree to our {" "}
-                <Link href="/terms-of-service" className="underline underline-offset-4 hover:text-primary"
-                >
-                  Terms of Service
-                </Link>{" "}
-                and{" "}
-                <Link
-                  href="/privacy"
-                  className="underline underline-offset-4 hover:text-primary"
-                >
-                  Privacy Policy
-                </Link>
-              </p>
+              {showTos && (
+                <p className="text-xs text-muted-foreground">
+                  By clicking continue, you agree to our {" "}
+                  <Link href="/terms-of-service" className="underline underline-offset-4 hover:text-primary"
+                  >
+                    Terms of Service
+                  </Link>{" "}
+                  and{" "}
+                  <Link
+                    href="/privacy"
+                    className="underline underline-offset-4 hover:text-primary"
+                  >
+                    Privacy Policy
+                  </Link>
+                </p>
+              )}  
             </div>
           </CardContent>
         </Card>
       </form>
     </div>
-  );
+  )
 }
 
-export default Invitation
+export default InvitationReset

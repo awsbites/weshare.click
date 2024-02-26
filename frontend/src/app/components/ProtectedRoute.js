@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthProvider';
+import Spinner from './Spinner';
 
 const ProtectedRoute = ({ children }) => {
   const { loading, user } = useAuth();
@@ -13,7 +14,9 @@ const ProtectedRoute = ({ children }) => {
   }, [user, router, loading]);
 
   if (!user) {
-    return <h1>Loading...</h1>
+    <div className='h-screen w-screen flex justify-center items-center'>
+      <Spinner />
+    </div>
   } else {
     return children;
   }

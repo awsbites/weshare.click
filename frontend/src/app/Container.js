@@ -15,10 +15,7 @@ Amplify.configure({
 export default function Container({ children }) {
   return (
     <AuthProvider>
-      <h1>Container</h1>
-      <div>
-        {children}
-      </div>
+      {children}
     </AuthProvider>
   )
 }

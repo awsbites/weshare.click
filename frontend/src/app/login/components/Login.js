@@ -1,13 +1,20 @@
-"use client"
+'use client'
 import { signIn } from 'aws-amplify/auth'
 import { useAuth } from '../../../context/AuthProvider'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { CardTitle, CardDescription, CardHeader, CardContent, Card } from '@/components/ui/card'
+import { Icons } from '@/components/icons'
+
 const Login = () => {
   const { user, checkUser } = useAuth()
   const router = useRouter()
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     if (user) {
@@ -17,28 +24,47 @@ const Login = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    setError('')
+    setLoading(true)
     const { username, password } = event.target.elements
-    console.log({ username, password })
     try {
       await signIn({ username: username.value, password: password.value })
     } catch (error) {
       console.error('Error signing in', error)
       setError(error.message || 'Unknown error')
+    } finally {
+      setLoading(false)
     }
     checkUser()
   }
 
   return (
-    <>
-      <h1>Log In</h1>
-      {error && <p className="error-message">{error}</p>}
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <input name="username" type="text" className="input" placeholder="Username" required />
-        <input name="password" type="password" className="input" placeholder="Password" required />
-        <button type="submit" className="button">Log in</button>
+    <div className='h-screen w-screen flex justify-center items-center bg-orange-600'>
+      <form onSubmit={handleSubmit}>
+        <Card className="mx-auto max-w-sm">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2x1 font-bold">Sign In</CardTitle>
+            <CardDescription>Enter your email and password to sign in</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className='space-y-2'>
+                <Label htmlFor="email">Email</Label>
+                <Input name="username" type="email" placeholder="u@example.com" required />
+              </div>
+              <div className='space-y-2'>
+                <Label htmlFor="password">Password</Label>
+                <Input name="password" type="password" placeholder="Password" required />
+              </div>
+              <Button className="w-full" type="submit" disabled={loading}>
+                {loading && <Icons.spinner className="animate-spin" />}{" "}
+                Sign In
+              </Button>
+              {error && <p className="text-sm text-red-600">{error}</p>}
+            </div>
+          </CardContent>
+        </Card>
       </form>
-    </>
+    </div>
   );
 }
 

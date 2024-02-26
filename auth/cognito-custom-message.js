@@ -3,8 +3,7 @@ import formData from 'form-data'
 import middy from '@middy/core'
 import middySsm from '@middy/ssm'
 import encryptionSdk from '@aws-crypto/client-node'
-import { URLSearchParams } from 'url'
-const { STAGE, KEY_ALIAS, KEY_ARN } = process.env
+const { BASE_URL, STAGE, KEY_ALIAS, KEY_ARN } = process.env
 const EMAIL_DOMAIN = 'sandbox4e5d8a28162548389a95edc71719a3a4.mailgun.org'
 
 const { decrypt } = encryptionSdk.buildClient(encryptionSdk.CommitmentPolicy.FORBID_ENCRYPT_ALLOW_DECRYPT)
@@ -15,25 +14,27 @@ const globals = {}
 /**
  * Using Mailgun, send an invitation email when the event indicates an Invitation is being created 
  * using a Cognito password reset flow
- * 
- * @param {*} event 
+ *
+ * @param {*} event
  */
 export async function cognitoCustomEmailSenderHandler (event) {
   console.log(event)
   const { request } = event
   if (event.triggerSource === 'CustomEmailSender_ForgotPassword') {
-    const { email, 'cognito:user_status': userStatus, email_verified: emailVerified } = request.userAttributes
+
+    const { email, email_verified: emailVerified } = request.userAttributes
     if (emailVerified !== 'true') {
       throw new Error('Email is not verified - unexpected ForgotPassword request: ' + JSON.stringify(request.userAttributes))
     } else {
       const encryptedCode = Buffer.from(request.code, 'base64')
       const { plaintext: code } = await decrypt(keyring, encryptedCode)
-      const url = new URL('http://localhost:3000/invitation')
+      const isInvitation = request?.clientMetadata?.InitationFlow === 'true'
+      const url = new URL(`${BASE_URL}/${isInvitation? 'invitation' : 'reset-password'}`)
       url.searchParams.set('email', email)
       url.searchParams.set('code', code)
 
       let htmlMessage
-      if (request?.clientMetadata?.InitationFlow === 'true') {
+      if (isInvitation) {
         htmlMessage = `
         <h1>You are invited 🤩</h1>
 

@@ -9,7 +9,7 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import sanitizeFilename from 'sanitize-filename'
 
-const { BUCKET_NAME, BASE_URL } = process.env
+const { BUCKET_NAME, API_BASE_URL } = process.env
 const EXPIRY_DEFAULT = 24 * 60 * 60
 const MIME_TYPE = 'application/octet-stream'
 
@@ -43,7 +43,7 @@ async function handler (event, context) {
   metrics.addMetric('CreateShareCount', MetricUnits.Count, 1)
 
   // Create the download URL
-  const downloadUrl = `${BASE_URL}/share/${id}`
+  const downloadUrl = `${API_BASE_URL}/share/${id}`
 
   // Create an upload URL
   const putCommand = new PutObjectCommand({

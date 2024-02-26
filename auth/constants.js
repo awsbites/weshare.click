@@ -19,4 +19,3 @@ export const OAuthErrorCodes = {
   UNSUPPORTED_GRANT_TYPE: 'unsupported_grant_type',
   INVALID_SCOPE: 'invalid_scope'
 }
-w

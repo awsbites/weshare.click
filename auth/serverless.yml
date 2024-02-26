@@ -18,14 +18,16 @@ provider:
     POWERTOOLS_SERVICE_NAME: auth
     POWERTOOLS_METRICS_NAMESPACE: auth
     BASE_URL: https://${self:custom.domainName}
+    API_BASE_URL: https://${self:custom.apiDomainName}
     USER_POOL_DOMAIN: ${self:custom.userPoolDomain}
     STAGE: ${sls:stage}
 
 custom:
   domainName: ${file(../config.cjs):config.domain}
+  apiDomainName: api.${self:custom.domainName}
+  userPoolDomain: auth.${self:custom.domainName}
   domainHostedZoneId: ${ssm(us-east-1):/weshare/${sls:stage}/domainHostedZone}
   authDomainCertArn: ${ssm(us-east-1):/weshare/${sls:stage}/authDomainCertArn}
-  userPoolDomain: auth.${self:custom.domainName}
   # The Hosted Zone for CloudFront distributions is always this value
   # See https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-aliastarget.html
   cloudFrontHostedZoneId: Z2FDTNDATAQYW2
@@ -124,7 +126,7 @@ resources:
       Properties:
         ApiId: !Ref HttpApi
         ApiMappingKey: "auth"
-        DomainName: ${self:custom.domainName}
+        DomainName: ${self:custom.apiDomainName}
         Stage: !Ref HttpApiStage
 
     CustomEmailKey:
@@ -200,8 +202,8 @@ resources:
         WriteAttributes:
           - email
         CallbackURLs:
-          - https://${self:custom.domainName}/auth/callback
-        DefaultRedirectURI: https://${self:custom.domainName}/auth/callback
+          - https://${self:custom.apiDomainName}/auth/callback
+        DefaultRedirectURI: https://${self:custom.apiDomainName}/auth/callback
         AllowedOAuthFlowsUserPoolClient: true
         AllowedOAuthFlows:
           - code

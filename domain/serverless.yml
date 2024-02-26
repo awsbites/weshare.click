@@ -13,6 +13,7 @@ plugins:
 
 custom:
   domainName: ${file(../config.cjs):config.domain}
+  apiDomainName: api.${self:custom.domainName}
   domainHostedZoneId: ${ssm(us-east-1):/weshare/${sls:stage}/domainHostedZone}
 
 resources:
@@ -20,16 +21,16 @@ resources:
     DomainCert:
       Type: AWS::CertificateManager::Certificate
       Properties:
-        DomainName: ${self:custom.domainName}
+        DomainName: ${self:custom.apiDomainName}
         ValidationMethod: DNS
         DomainValidationOptions:
-          - DomainName: ${self:custom.domainName}
+          - DomainName: ${self:custom.apiDomainName}
             HostedZoneId: ${self:custom.domainHostedZoneId}
 
     ApiCustomDomain:
       Type: AWS::ApiGatewayV2::DomainName
       Properties:
-        DomainName: ${self:custom.domainName}
+        DomainName: ${self:custom.apiDomainName}
         DomainNameConfigurations:
           - CertificateArn: !Ref DomainCert
 
@@ -38,12 +39,12 @@ resources:
       Properties:
         HostedZoneId: ${self:custom.domainHostedZoneId}
         RecordSets:
-          - Name: ${self:custom.domainName}
+          - Name: ${self:custom.apiDomainName}
             Type: A
             AliasTarget:
               DNSName: !GetAtt ApiCustomDomain.RegionalDomainName
               HostedZoneId: !GetAtt ApiCustomDomain.RegionalHostedZoneId
-          - Name: ${self:custom.domainName}
+          - Name: ${self:custom.apiDomainName}
             Type: AAAA
             AliasTarget:
               DNSName: !GetAtt ApiCustomDomain.RegionalDomainName

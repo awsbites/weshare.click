@@ -10,9 +10,6 @@ provider:
 custom:
   domainName: ${file(../config.cjs):config.domain}
   userPoolDomain: auth.${self:custom.domainName}
-  # The Hosted Zone for CloudFront distributions is always this value
-  # See https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-aliastarget.html
-  cloudFrontHostedZoneId: Z2FDTNDATAQYW2
 
 resources:
   Resources:
@@ -30,6 +27,15 @@ resources:
           - DomainName: ${self:custom.userPoolDomain}
             HostedZoneId: !Ref PublicHostedZone
 
+    DomainCert:
+      Type: AWS::CertificateManager::Certificate
+      Properties:
+        DomainName: ${self:custom.domainName}
+        ValidationMethod: DNS
+        DomainValidationOptions:
+          - DomainName: ${self:custom.domainName}
+            HostedZoneId: !Ref PublicHostedZone
+
     DomainHostedZoneParameter:
       Type: AWS::SSM::Parameter
       Properties:
@@ -43,3 +49,10 @@ resources:
         Name: /weshare/${sls:stage}/authDomainCertArn
         Type: String
         Value: !Ref AuthDomainCert
+
+    DomainCertParameter:
+      Type: AWS::SSM::Parameter
+      Properties:
+        Name: /weshare/${sls:stage}/domainCertArn
+        Type: String
+        Value: !Ref DomainCert

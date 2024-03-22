@@ -7,7 +7,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb'
 import cryptoRandomString from 'crypto-random-string'
 import { COGNITO_OAUTH_CODE_URI, CODE_EXPIRY_SECONDS, CLIENT_ID, REDIRECT_URI, TABLE_NAME } from './config.js'
-import { htmlResponse } from './util.js'
+import { uiResponse } from './util.js'
 import { DeviceAuthStatus } from './constants.js'
 
 const tracer = new Tracer()
@@ -50,7 +50,7 @@ async function handler (event, context) {
   logger.debug({ ddbQueryResponse })
 
   if (ddbQueryResponse.Items?.length === 0) {
-    return htmlResponse(400, 'Invalid code. Maybe it expired?')
+    return uiResponse(undefined, 'Invalid code. Maybe it expired?')
   }
 
   const { pk, sk } = ddbQueryResponse.Items[0]
@@ -79,10 +79,10 @@ async function handler (event, context) {
     logger.debug({ updateItemResponse })
   } catch (err) {
     if (err.name === 'ConditionalCheckFailedException') {
-      return htmlResponse(400, 'The token is expired or already verified')
+      return uiResponse(undefined, 'The token is expired or already verified')
     }
     logger.error({ err })
-    return htmlResponse(500, `Oops. Something went wrong with request ID: ${context.awsRequestId}`)
+    return uiResponse(undefined, `Oops. Something went wrong with request ID: ${context.awsRequestId}`)
   }
 
   const destinationUrl = new URL(COGNITO_OAUTH_CODE_URI)

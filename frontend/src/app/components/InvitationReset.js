@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useAuth } from '@/context/AuthProvider'
 
 import { Button } from '@/components/ui/button'
@@ -14,13 +15,9 @@ import { CardTitle, CardDescription, CardHeader, CardContent, Card, CardFooter }
 const InvitationReset = ({ title, description, showTos, confirmButtonText }) => {
   const { confirmResetCode } = useAuth()
   const [error, setError] = useState('')
-  let code, email
-  if (typeof document !== 'undefined') {
-    // Avoiding useSearchParams() so we don't have to use Suspense: https://github.com/vercel/next.js/discussions/61654
-    const searchParams = new URLSearchParams(document.location.search);
-    code = searchParams.get('code')
-    email = searchParams.get('email')
-  }
+  const searchParams = useSearchParams()
+  const code = searchParams.get('code')
+  const email = searchParams.get('email')
 
   const handleSubmit = async (event) => {
     event.preventDefault()

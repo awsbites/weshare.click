@@ -34,7 +34,7 @@ program
 
 program.parse()
 
-export async function createUser (email,{ userPoolId, clientId }) {
+export async function createUser (email, { userPoolId, clientId }) {
   const password = generatePassword()
 
   const createRequest = {

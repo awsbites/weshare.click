@@ -7,7 +7,7 @@ const AuthContext = createContext({});
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const router = useRouter()
 
   useEffect(() => {
@@ -19,10 +19,10 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       const userData = await getCurrentUser();
       setUser(userData);
-      setLoading(false);
     } catch (error) {
       setUser(null);
     }
+    setLoading(false)
   };
 
   const logOut = async () => {
@@ -36,6 +36,7 @@ export const AuthProvider = ({ children }) => {
 
   /**
    * Confirmation for reset password or invitation flows
+   * 
    * @param {*} email 
    * @param {*} password 
    * @param {*} code 

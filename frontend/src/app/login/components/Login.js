@@ -60,7 +60,7 @@ const Login = () => {
                 {error && <p className="text-sm text-red-600">{error}</p>}
               </div>
               <Button className="w-full" type="submit" disabled={loading}>
-                {loading && <Icons.spinner className="animate-spin" />}{" "}
+                {loading && <Icons.spinner className="animate-spin pr-2" />}{" "}
                 Sign In
               </Button>
             </div>

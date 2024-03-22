@@ -15,6 +15,7 @@ const ProtectedRoute = ({ children }) => {
 
   if (!user) {
     <div className='h-screen w-screen flex justify-center items-center'>
+      <h1>ProtectedRoute</h1>
       <Spinner />
     </div>
   } else {

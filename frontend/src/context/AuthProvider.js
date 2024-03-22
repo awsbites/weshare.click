@@ -1,18 +1,19 @@
 'use client';
 import { createContext, useContext, useState, useEffect } from 'react';
 import { getCurrentUser, confirmResetPassword, signOut, signIn } from 'aws-amplify/auth';
-import { useRouter } from 'next/navigation';
+import { redirect } from 'next/navigation';
+import Spinner from '@/app/_components/Spinner';
 
 const AuthContext = createContext({});
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter()
 
   useEffect(() => {
     checkUser();
   }, []);
+
 
   const checkUser = async () => {
     try {
@@ -48,12 +49,12 @@ export const AuthProvider = ({ children }) => {
     await confirmResetPassword({ username: email, confirmationCode: code, newPassword: password });
     await signIn({ username: email, password });
     await checkUser()
-    router.push('/');
+    redirect('/');
   };
 
   return (
     <AuthContext.Provider value={{ loading, user, checkUser, confirmResetCode, logOut }}>
-      {children}
+      {loading ? <Spinner /> : children}
     </AuthContext.Provider>
   );
 };

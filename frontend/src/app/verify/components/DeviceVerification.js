@@ -29,7 +29,7 @@ export default function DeviceVerification () {
     <div className='h-screen w-screen flex justify-center items-center'>
       <Card className="mx-auto max-w-sm">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2x1 font-bold">Davice Verification Request</CardTitle>
+          <CardTitle className="text-2x1 font-bold">Device Verification Request</CardTitle>
           <CardDescription>An application is requesting access to your account</CardDescription>
         </CardHeader>
         <CardContent>

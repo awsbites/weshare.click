@@ -1,6 +1,6 @@
 'use client'
 import { Suspense } from 'react'
-import InvitationReset from '@/app/components/InvitationReset'
+import InvitationReset from '@/app/_components/InvitationReset'
 
 const Page = () => {
   return <Suspense>

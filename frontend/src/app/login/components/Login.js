@@ -1,7 +1,7 @@
 'use client'
 import { signIn } from 'aws-amplify/auth'
 import { useAuth } from '../../../context/AuthProvider'
-import { useRouter } from 'next/navigation'
+import { redirect } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -13,15 +13,14 @@ import Link from 'next/link'
 
 const Login = () => {
   const { user, checkUser } = useAuth()
-  const router = useRouter()
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     if (user) {
-      router.push('/')
+      redirect('/')
     }
-  }, [user, router])
+  }, [user])
 
   const handleSubmit = async (event) => {
     event.preventDefault()

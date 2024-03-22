@@ -1,17 +1,17 @@
+'use client';
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import { useAuth } from '../../context/AuthProvider';
-import Spinner from './Spinner';
+import Spinner from '@/app/_components/Spinner';
 
-const ProtectedRoute = ({ children }) => {
+export default function ProtectedLayout ({ children }) {
   const { loading, user } = useAuth();
-  const router = useRouter();
   
   useEffect(() => {
     if (!loading && !user) {
-      router.push('/login');
+      redirect('/login');
     }
-  }, [user, router, loading]);
+  }, [user, loading]);
 
   if (!user) {
     <div className='h-screen w-screen flex justify-center items-center'>
@@ -22,5 +22,3 @@ const ProtectedRoute = ({ children }) => {
     return children;
   }
 }
-
-export default ProtectedRoute

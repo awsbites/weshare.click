@@ -1,0 +1,106 @@
+service: frontend
+frameworkVersion: '3'
+
+plugins:
+  - serverless-s3-sync
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  stage: ${file(../config.cjs):config.stage}
+  region: ${file(../config.cjs):config.region}
+
+custom:
+  domainName: ${file(../config.cjs):config.domain}
+  domainCertArn: ${ssm(us-east-1):/weshare/${sls:stage}/domainCertArn}
+  domainHostedZoneId: ${ssm(us-east-1):/weshare/${sls:stage}/domainHostedZone}
+  # The Hosted Zone for CloudFront distributions is always this value
+  # See https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-aliastarget.html
+  cloudFrontHostedZoneId: Z2FDTNDATAQYW2
+  siteBucketName: ${self:service}-${sls:stage}-${aws:accountId}-${aws:region}
+  s3Sync:
+    - bucketName: ${self:custom.siteBucketName}
+      localDir: out
+
+resources:
+  Resources:
+    SiteBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.siteBucketName} 
+        WebsiteConfiguration:
+          IndexDocument: index.html
+          ErrorDocument: index.html
+    
+    SiteBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: !Ref SiteBucket
+        PolicyDocument:
+          Statement:
+            - Action:
+                - 's3:GetObject'
+              Effect: 'Allow'
+              Principal:
+                CanonicalUser: !GetAtt OriginAccessIdentity.S3CanonicalUserId
+              Resource: !Sub 'arn:aws:s3:::${SiteBucket}/*'
+    
+    OriginAccessIdentity:
+      Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+      Properties:
+        CloudFrontOriginAccessIdentityConfig:
+          Comment: Allow CloudFront distribution access to the site bucket
+
+    SiteDistribution:
+      Type: AWS::CloudFront::Distribution
+      Properties:
+        DistributionConfig:
+          Origins:
+            - DomainName: !GetAtt SiteBucket.RegionalDomainName
+              Id: !Sub '${SiteBucket}-origin'
+              S3OriginConfig:
+                OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${OriginAccessIdentity}'
+          Enabled: true
+          DefaultRootObject: index.html
+          HttpVersion: http2
+          Aliases:
+            - ${self:custom.domainName}
+          DefaultCacheBehavior:
+            AllowedMethods: [DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT]
+            TargetOriginId: !Sub '${SiteBucket}-origin'
+            ForwardedValues:
+              QueryString: 'false'
+              Cookies:
+                Forward: none
+            ViewerProtocolPolicy: redirect-to-https
+          ViewerCertificate:
+            AcmCertificateArn: ${self:custom.domainCertArn}
+            SslSupportMethod: sni-only
+          CacheBehaviors:
+            - PathPattern: index.html
+              MaxTTL: 0
+              MinTTL: 0
+              DefaultTTL: 0
+              TargetOriginId: !Sub '${SiteBucket}-origin'
+              ViewerProtocolPolicy: redirect-to-https
+              ForwardedValues:
+                QueryString: 'false'
+                Cookies:
+                  Forward: none
+          CustomErrorResponses:
+            - ErrorCode: 403
+              ResponseCode: 200
+              ResponsePagePath: /
+            - ErrorCode: 404
+              ResponseCode: 200
+              ResponsePagePath: /
+    SiteRecordSets:
+      Type: AWS::Route53::RecordSetGroup
+      Properties:
+        HostedZoneId: ${self:custom.domainHostedZoneId}
+        RecordSets:
+          - Name: ${self:custom.domainName}
+            Type: A
+            AliasTarget:
+              DNSName: { Fn::GetAtt: [SiteDistribution, DomainName] }
+              HostedZoneId: ${self:custom.cloudFrontHostedZoneId}

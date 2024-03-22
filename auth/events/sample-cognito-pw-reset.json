@@ -1,0 +1,24 @@
+{
+  "version": "1",
+  "triggerSource": "CustomEmailSender_ForgotPassword",
+  "region": "eu-west-1",
+  "userPoolId": "eu-west-1_Jn1Hv0kUL",
+  "userName": "5c20be82-1b91-4e0c-837a-319545fa4940",
+  "callerContext": {
+    "awsSdkVersion": "aws-sdk-js-3.515.0",
+    "clientId": null
+  },
+  "request": {
+    "type": "customEmailSenderRequestV1",
+    "code": "AYA..................afEQc86+g=",
+    "clientMetadata": {
+      "InitationFlow": "true"
+    },
+    "userAttributes": {
+      "sub": "5c20be82-1b91-4e0c-837a-319545fa4940",
+      "cognito:user_status": "CONFIRMED",
+      "email_verified": "true",
+      "email": "eoin.shanaghy@gmail.com"
+    }
+  }
+}

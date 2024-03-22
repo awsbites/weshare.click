@@ -1,9 +1,23 @@
-export function htmlResponse (statusCode, text) {
+const { BASE_URL } = process.env
+
+/**
+ * Creates a redirect to the UI to display success or error text
+ *
+ * @param {*} successText
+ * @param {*} errorText
+ */
+export function uiResponse (successText, errorText) {
+  const params = new URLSearchParams()
+  if (successText) {
+    params.set('success', successText)
+  }
+  if (errorText) {
+    params.set('error', errorText)
+  }
   return {
-    statusCode,
-    body: `<html>${text}</html>`,
+    statusCode: 302,
     headers: {
-      'content-type': 'text/html'
+      Location: `${BASE_URL}/verification-result?${params}`
     }
   }
 }

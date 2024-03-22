@@ -5,7 +5,7 @@ import sinon from 'sinon'
 const FIXED_UUID = '00000000-0000-0000-0000-000000000000'
 const mockMiddleware = () => ({ before: sinon.stub(), after: sinon.stub(), error: sinon.stub() })
 process.env.BUCKET_NAME = 'test-bucket'
-process.env.BASE_URL = 'https://weshare.click'
+process.env.API_BASE_URL = 'https://api.weshare.click'
 
 const globalMocks = {
   'node:crypto': {

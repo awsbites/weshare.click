@@ -79,7 +79,7 @@ async function handler (event, context) {
  * Initiate an OAuth 2.0 Access Token Request
  *
  * https://www.rfc-editor.org/rfc/rfc6749#page-29
- * 
+ *
  * @param {*} oauthCode The code retrieved already from the authorization server
  * @returns HTTP Lambda proxy response for the request
  */

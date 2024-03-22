@@ -6,7 +6,7 @@ import middy from '@middy/core'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb'
 import { CODE_EXPIRY_SECONDS, TABLE_NAME } from './config.js'
-import { htmlResponse } from './util.js'
+import { uiResponse } from './util.js'
 import { DeviceAuthStatus } from './constants.js'
 
 const tracer = new Tracer()
@@ -27,7 +27,7 @@ async function handler (event, context) {
   if (!state || !code) {
     // The user may have arrived here by logging in directly on the Cognito Hosted UI without initiating
     // a proper Device Auth flow
-    return htmlResponse(400, 'To log in to weshare.click, use the <b>weshare CLI</b>')
+    return uiResponse(undefined, 'To log in to weshare.click, use the <b>weshare CLI</b>')
   }
 
   metrics.addMetric('IdpCallbackCount', MetricUnits.Count, 1)
@@ -48,7 +48,7 @@ async function handler (event, context) {
   const ddbQueryResponse = await docClient.query(queryItemInput)
   logger.debug({ ddbResponse: ddbQueryResponse }, 'Received query response')
   if (ddbQueryResponse.Items?.length !== 1) {
-    return htmlResponse(400, 'Unable to verify user code')
+    return uiResponse(undefined, 'Unable to verify user code')
   }
 
   const { pk, sk } = ddbQueryResponse.Items[0]
@@ -94,16 +94,16 @@ async function handler (event, context) {
     logger.debug({ ddbResponse }, 'Received update response')
   } catch (err) {
     if (err.name === 'ConditionalCheckFailedException') {
-      return htmlResponse(400, 'The token is expired or already verified')
+      return uiResponse(undefined, 'The token is expired or already verified')
     }
     logger.error({ err })
-    return htmlResponse(500, `Oops. Something went wrong with request ID: ${context.awsRequestId}`)
+    return uiResponse(undefined, `Oops. Something went wrong with request ID: ${context.awsRequestId}`)
   }
 
   if (error) {
-    return htmlResponse(400, `Error(${error}): ${errorDescription}`)
+    return uiResponse(undefined, `${error}: ${errorDescription}`)
   }
-  return htmlResponse(200, 'Thank you. You can return to the weshare client.')
+  return uiResponse('Thank you. You can return to the weshare client.')
 }
 
 export const handleEvent = middy(handler)

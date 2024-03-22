@@ -49,6 +49,7 @@ The CLI authentication uses the OAuth 2.0 device authentication flow, which is n
   - [Node.js](https://nodejs.org/) (v16 or higher)
   - [Serverless framework](https://www.serverless.com/framework) (v3 or higher)
   - Your custom domain (easier if already registered with Route53)
+  - A Mailgun API Key, stored as an SSM Parameter Store securestring named `/weshare/<STAGE>/mailgunApiKey` (`STAGE` is `prd` by default)
   - A bash-compatible environment (Tested on macOS but it should also work on Linux and Windows with subsystem for Linux)
   - [`jq`](https://stedolan.github.io/jq/): optional but useful if you need to run some of the suggested CLI commands below
 
@@ -153,7 +154,7 @@ If you know a better way to streamline the first deployment, please create an is
 
 ### 4. Create users in the Cognito User pool
 
-To be able to login into weshare, you need to create some users first. You can do this either from the AWS web console or programmatically.
+To be able to log in with weshare, you need to create some users first. You can do this either from the AWS web console or programmatically.
 
 Here's how to add a new user to the user pool from the AWS CLI:
 

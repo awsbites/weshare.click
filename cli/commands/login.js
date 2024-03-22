@@ -5,8 +5,9 @@ import { request } from 'undici'
 import open from 'open'
 import ora from 'ora'
 import { config } from '../config.js'
+import { getApiBaseUrl } from '../utils.js'
 
-export default async function login() {
+export default async function login () {
   // prompt for domain
   const { baseurl } = await enquirer.prompt({
     type: 'input',
@@ -14,6 +15,7 @@ export default async function login() {
     message: 'Please enter the base url of your weshare.click deployment',
     validate: (input) => {
       try {
+        // eslint-disable-next-line no-new
         new URL(input)
         return true
       } catch {
@@ -22,8 +24,9 @@ export default async function login() {
     },
     initial: config.get('baseurl') || 'https://weshare.click'
   })
-
-  const DEVICE_AUTH_URL = `${baseurl}/auth/device_authorization`
+  const apiBaseUrl = getApiBaseUrl(baseurl)
+  const DEVICE_AUTH_URL = `${apiBaseUrl}auth/device_authorization`
+  console.log(DEVICE_AUTH_URL)
   const deviceAuthResp = await request(DEVICE_AUTH_URL, {
     method: 'POST',
     headers: {
@@ -32,20 +35,21 @@ export default async function login() {
     }
   })
   const deviceAuthRespBody = await deviceAuthResp.body.json()
+  console.log(deviceAuthRespBody)
 
   // start device flow and get redirect url and codes
-  console.log(`Please login at ${deviceAuthRespBody.verification_uri_complete}`)
+  console.log(`Please log in at ${deviceAuthRespBody.verification_uri_complete}`)
   try {
     // open the browser
     await open(deviceAuthRespBody.verification_uri_complete)
   } catch {}
 
   const spinner = ora('Waiting to complete the login in the browser...').start()
-  
+
   // poll in the background
   let loggedIn = null
 
-  const TOKEN_URL = `${baseurl}/auth/token`
+  const TOKEN_URL = `${apiBaseUrl}auth/token`
   const tokenPayload = querystring.encode({
     grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
     device_code: deviceAuthRespBody.device_code

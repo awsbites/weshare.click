@@ -10,7 +10,7 @@ package:
 
 provider:
   name: aws
-  runtime: nodejs16.x
+  runtime: nodejs20.x
   stage: ${file(../config.cjs):config.stage}
   region: ${file(../config.cjs):config.region}
   tracing:
@@ -18,7 +18,7 @@ provider:
     lambda: true
   environment:
     BUCKET_NAME: !Ref FileBucket
-    BASE_URL: https://${self:custom.domainName}
+    API_BASE_URL: https://${self:custom.apiDomainName}
     POWERTOOLS_SERVICE_NAME: weshare
     POWERTOOLS_METRICS_NAMESPACE: weshare
   httpApi:
@@ -31,7 +31,7 @@ provider:
           - !Ref UserPoolClientIdParameter
 
 custom:
-  domainName: ${file(../config.cjs):config.domain}
+  apiDomainName: api.${file(../config.cjs):config.domain}
 
 functions:
   createShare:
@@ -82,7 +82,7 @@ resources:
       Properties:
         ApiId: !Ref HttpApi
         ApiMappingKey: "share"
-        DomainName: ${self:custom.domainName}
+        DomainName: ${self:custom.apiDomainName}
         Stage: !Ref HttpApiStage
 
     FileBucket:

@@ -3,16 +3,17 @@ import { createReadStream } from 'node:fs'
 import { stat } from 'node:fs/promises'
 import { request } from 'undici'
 import { config } from '../config.js'
+import { getApiBaseUrl } from '../utils.js'
 
 export default async function upload (filepath) {
-  const baseurl = config.get('baseurl')
+  const apiBaseUrl = getApiBaseUrl(config.get('baseurl'))
   const accessToken = config.get('access_token')
-  if (!baseurl || !accessToken) {
+  if (!apiBaseUrl || !accessToken) {
     console.log('It looks like you need to login. Please run:\n\n> weshare login')
     process.exit(1)
   }
 
-  const SHARE_URL = `${baseurl}/share/`
+  const SHARE_URL = `${apiBaseUrl}share/`
 
   try {
     // read the filepath and check that exists and its a file
@@ -33,6 +34,7 @@ export default async function upload (filepath) {
         authorization: `Bearer ${accessToken}`
       }
     })
+
     if (shareUrlResp.statusCode !== 201) {
       const responseText = await shareUrlResp.body.text()
       throw new Error(`Unexpected status code received from server: ${shareUrlResp.statusCode}\n\n${responseText}`)

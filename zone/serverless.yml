@@ -1,0 +1,58 @@
+service: ${file(../config.cjs):config.serviceName}-zone
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: us-east-1   # CloudFront and API Gateway certificates must be in us-east-1
+  stage: ${file(../config.cjs):config.stage}
+
+custom:
+  domainName: ${file(../config.cjs):config.domain}
+  userPoolDomain: auth.${self:custom.domainName}
+
+resources:
+  Resources:
+    PublicHostedZone:
+      Type: AWS::Route53::HostedZone
+      Properties:
+        Name: ${self:custom.domainName}
+
+    AuthDomainCert:
+      Type: AWS::CertificateManager::Certificate
+      Properties:
+        DomainName: ${self:custom.userPoolDomain}
+        ValidationMethod: DNS
+        DomainValidationOptions:
+          - DomainName: ${self:custom.userPoolDomain}
+            HostedZoneId: !Ref PublicHostedZone
+
+    DomainCert:
+      Type: AWS::CertificateManager::Certificate
+      Properties:
+        DomainName: ${self:custom.domainName}
+        ValidationMethod: DNS
+        DomainValidationOptions:
+          - DomainName: ${self:custom.domainName}
+            HostedZoneId: !Ref PublicHostedZone
+
+    DomainHostedZoneParameter:
+      Type: AWS::SSM::Parameter
+      Properties:
+        Name: /weshare/${sls:stage}/domainHostedZone
+        Type: String
+        Value: !Ref PublicHostedZone
+
+    AuthDomainCertParameter:
+      Type: AWS::SSM::Parameter
+      Properties:
+        Name: /weshare/${sls:stage}/authDomainCertArn
+        Type: String
+        Value: !Ref AuthDomainCert
+
+    DomainCertParameter:
+      Type: AWS::SSM::Parameter
+      Properties:
+        Name: /weshare/${sls:stage}/domainCertArn
+        Type: String
+        Value: !Ref DomainCert

@@ -51,6 +51,42 @@ resources:
         CloudFrontOriginAccessIdentityConfig:
           Comment: Allow CloudFront distribution access to the site bucket
 
+    DefaultCachePolicy:
+      Type: AWS::CloudFront::CachePolicy
+      Properties:
+        CachePolicyConfig:
+          Name: 'default-nextjs-cache-policy'
+          DefaultTTL: 86400
+          MaxTTL: 86400
+          MinTTL: 86400
+          ParametersInCacheKeyAndForwardedToOrigin:
+            CookiesConfig:
+              CookieBehavior: 'none'
+            EnableAcceptEncodingGzip: false
+            EnableAcceptEncodingBrotli: false
+            HeadersConfig:
+              HeaderBehavior: 'none'
+            QueryStringsConfig:
+              QueryStringBehavior: 'all' # query strings are used by Next.js for file versions
+
+    HtmlCachePolicy:
+      Type: AWS::CloudFront::CachePolicy
+      Properties:
+        CachePolicyConfig:
+          Name: 'html-nextjs-cache-policy'
+          DefaultTTL: 0
+          MaxTTL: 0
+          MinTTL: 0
+          ParametersInCacheKeyAndForwardedToOrigin:
+            CookiesConfig:
+              CookieBehavior: 'none'
+            EnableAcceptEncodingGzip: false
+            EnableAcceptEncodingBrotli: false
+            HeadersConfig:
+              HeaderBehavior: 'none'
+            QueryStringsConfig:
+              QueryStringBehavior: 'none' # Caching is disabled
+              
     SiteDistribution:
       Type: AWS::CloudFront::Distribution
       Properties:
@@ -66,27 +102,21 @@ resources:
           Aliases:
             - ${self:custom.domainName}
           DefaultCacheBehavior:
-            AllowedMethods: [DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT]
+            AllowedMethods: [GET, HEAD, OPTIONS]
             TargetOriginId: !Sub '${SiteBucket}-origin'
-            ForwardedValues:
-              QueryString: 'false'
-              Cookies:
-                Forward: none
+            CachePolicyId: !Ref DefaultCachePolicy
             ViewerProtocolPolicy: redirect-to-https
           ViewerCertificate:
             AcmCertificateArn: ${self:custom.domainCertArn}
             SslSupportMethod: sni-only
           CacheBehaviors:
-            - PathPattern: index.html
+            - PathPattern: '*.html'
               MaxTTL: 0
               MinTTL: 0
               DefaultTTL: 0
               TargetOriginId: !Sub '${SiteBucket}-origin'
               ViewerProtocolPolicy: redirect-to-https
-              ForwardedValues:
-                QueryString: 'false'
-                Cookies:
-                  Forward: none
+              CachePolicyId: !Ref HtmlCachePolicy
           CustomErrorResponses:
             - ErrorCode: 403
               ResponseCode: 200

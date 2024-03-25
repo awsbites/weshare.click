@@ -10,7 +10,7 @@ export default function App () {
   return (
     <Card className="mx-auto max-w-sm">
       <CardHeader className="space-y-1">
-        Home - You are {user?.username}
+        Home - You are {user.userId}
       </CardHeader>
       <CardContent>
         <Button onClick={logOut}>Log out</Button>

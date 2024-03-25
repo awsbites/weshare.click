@@ -1,8 +1,8 @@
 'use client'
-import { signIn } from 'aws-amplify/auth'
+
 import { useAuth } from '../../../context/AuthProvider'
 import { redirect } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -12,9 +12,9 @@ import { Icons } from '@/components/icons'
 import Link from 'next/link'
 
 const Login = () => {
-  const { user, checkUser } = useAuth()
+  const { user, logIn } = useAuth()
   const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [loading, startTransition] = useTransition()
 
   useEffect(() => {
     if (user) {
@@ -22,19 +22,17 @@ const Login = () => {
     }
   }, [user])
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = (event) => {
     event.preventDefault()
-    setLoading(true)
-    const { username, password } = event.target.elements
-    try {
-      await signIn({ username: username.value, password: password.value })
-    } catch (error) {
-      console.error('Error signing in', error)
-      setError(error.message || 'Unknown error')
-    } finally {
-      setLoading(false)
-    }
-    checkUser()
+    startTransition(async () => {
+      const { username, password } = event.target.elements
+      try {
+        await logIn(username.value, password.value)
+      } catch (error) {
+        console.error('Error signing in', error)
+        setError(error.message || 'Unknown error')
+      }
+    })
   }
 
   return (
